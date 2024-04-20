@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,6 +59,13 @@ public class MessageInitializer {
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_ROTTEN_FLESH_LEVEL_UP", new Message("In-Game.Messages.Village.Rotten-Flesh-Level-Up", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_VILLAGER_DIED", new Message("In-Game.Messages.Village.Villager.Died", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_VILLAGER_NAMES", new Message("In-Game.Messages.Village.Villager.Names", ""));
+    getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_VILLAGER_SPECIAL_OFFER", new Message("In-Game.Messages.Village.Villager.Special-Offer", ""));
+    getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_VILLAGER_OFFERING_SALE", new Message("In-Game.Messages.Village.Villager.Offering-Sale", ""));
+
+    getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_VILLAGER_ROTTEN_OFFER", new Message("In-Game.Messages.Village.Villager.Rotten-Offer", ""));
+    getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_VILLAGER_ROTTEN_SALE", new Message("In-Game.Messages.Village.Villager.Rotten-Sale", ""));
+    getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_VILLAGER_PINATA_EVENT", new Message("In-Game.Messages.Village.Villager.Pinata-Event", ""));
+
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_STUCK_ZOMBIES", new Message("In-Game.Messages.Village.Wave.Stuck-Zombies", ""));
     /*unused*/
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_SPECTATOR_WARNING", new Message("In-Game.Messages.Village.Wave.Spectator-Warning", ""));
@@ -72,12 +79,16 @@ public class MessageInitializer {
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_TITLE_STARTING_2", new Message("In-Game.Messages.Village.Wave.Title.Start-2", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_TITLE_STARTING_1", new Message("In-Game.Messages.Village.Wave.Title.Start-1", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_CANT_RIDE_OTHER", new Message("In-Game.Messages.Village.Entities.Cant-Ride-Other", ""));
+    getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_CANT_UPGRADE_THIS", new Message("In-Game.Messages.Village.Entities.Cant-Upgrade-This", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_CANT_UPGRADE_OTHER", new Message("In-Game.Messages.Village.Entities.Cant-Upgrade-Other", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_WOLF_SPAWN", new Message("In-Game.Messages.Village.Entities.Wolf.Spawn", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_WOLF_NAME", new Message("In-Game.Messages.Village.Entities.Wolf.Name", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_WOLF_DEATH", new Message("In-Game.Messages.Village.Entities.Wolf.Death", ""));
+    getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_GOLEM_DEATH", new Message("In-Game.Messages.Village.Entities.Golem.Death", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_GOLEM_SPAWN", new Message("In-Game.Messages.Village.Entities.Golem.Spawn", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_GOLEM_NAME", new Message("In-Game.Messages.Village.Entities.Golem.Name", ""));
+    getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_ZOMBIE_STUNNED_NAME", new Message("In-Game.Messages.Village.Entities.Zombie.Stunned-Name", ""));
+
 
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_SHOP_GUI", new Message("In-Game.Messages.Village.Shop.GUI", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_SHOP_GOLEM_ITEM", new Message("In-Game.Messages.Village.Shop.Golem-Item-Name", ""));
@@ -86,8 +97,12 @@ public class MessageInitializer {
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_SHOP_NOT_ENOUGH_CURRENCY", new Message("In-Game.Messages.Village.Shop.Not-Enough-Currency", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_SHOP_CURRENCY", new Message("In-Game.Messages.Village.Shop.Currency", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_SHOP_WAVE_LOCK", new Message("In-Game.Messages.Village.Shop.Wave-Lock", ""));
+    getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_SHOP_ITEM_LOCKED", new Message("In-Game.Messages.Village.Shop.Item-Locked-Name", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_SHOP_WAVE_STILL_LOCKED", new Message("In-Game.Messages.Village.Shop.Wave-Still-Locked", ""));
     getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_SHOP_NOT_DEFINED", new Message("In-Game.Messages.Village.Shop.Not-Defined", ""));
+    getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_SHOP_NEW_OFFERS_AVAILABLE", new Message("In-Game.Messages.Village.Shop.New-Shop-Offers", ""));
+    getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_SHOP_SPECIAL_OFFER", new Message("In-Game.Messages.Village.Shop.Special-Offer", ""));
+    getMessageManager().registerMessage("IN_GAME_MESSAGES_VILLAGE_SHOP_AUTO_ARMOR_EQUIPPED", new Message("In-Game.Messages.Village.Shop.Auto-Armor-Equipped", ""));
 
 
     getMessageManager().registerMessage("LEADERBOARD_STATISTICS_ORBS", new Message("Leaderboard.Statistics.Orbs", ""));
@@ -113,88 +128,10 @@ public class MessageInitializer {
     getMessageManager().registerMessage("UPGRADE_MENU_UPGRADES_DEFENSE_NAME", new Message("Upgrade-Menu.Upgrades.Final-Defense.Name", ""));
     getMessageManager().registerMessage("UPGRADE_MENU_UPGRADES_DEFENSE_DESCRIPTION", new Message("Upgrade-Menu.Upgrades.Final-Defense.Description", ""));
 
-//ZOMBIE_TELEPORTER KIT
-
-    getMessageManager().registerMessage("KIT_CONTENT_ZOMBIE_TELEPORTER_NAME", new Message("Kit.Content.Zombie-Teleporter.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_ZOMBIE_TELEPORTER_DESCRIPTION", new Message("Kit.Content.Zombie-Teleporter.Description", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_ZOMBIE_TELEPORTER_GAME_ITEM_NAME", new Message("Kit.Content.Zombie-Teleporter.Game-Item.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_ZOMBIE_TELEPORTER_GAME_ITEM_DESCRIPTION", new Message("Kit.Content.Zombie-Teleporter.Game-Item.Description", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_ZOMBIE_TELEPORTER_GAME_ITEM_GUI", new Message("Kit.Content.Zombie-Teleporter.Game-Item.GUI", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_ZOMBIE_TELEPORTER_TELEPORT_ZOMBIE", new Message("Kit.Content.Zombie-Teleporter.Teleport.Zombie", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_ZOMBIE_TELEPORTER_TELEPORT_NOT_FOUND", new Message("Kit.Content.Zombie-Teleporter.Teleport.Not-Found", ""));
-
-//KNIGHT
+    //KNIGHT
 
     getMessageManager().registerMessage("KIT_CONTENT_KNIGHT_NAME", new Message("Kit.Content.Knight.Name", ""));
     getMessageManager().registerMessage("KIT_CONTENT_KNIGHT_DESCRIPTION", new Message("Kit.Content.Knight.Description", ""));
-
-//LIGHT_TANK
-
-    getMessageManager().registerMessage("KIT_CONTENT_LIGHT_TANK_NAME", new Message("Kit.Content.Light-Tank.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_LIGHT_TANK_DESCRIPTION", new Message("Kit.Content.Light-Tank.Description", ""));
-
-//ARCHER
-
-    getMessageManager().registerMessage("KIT_CONTENT_ARCHER_NAME", new Message("Kit.Content.Archer.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_ARCHER_DESCRIPTION", new Message("Kit.Content.Archer.Description", ""));
-
-//PUNCHER
-
-    getMessageManager().registerMessage("KIT_CONTENT_PUNCHER_NAME", new Message("Kit.Content.Puncher.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_PUNCHER_DESCRIPTION", new Message("Kit.Content.Puncher.Description", ""));
-
-//HEALER
-
-    getMessageManager().registerMessage("KIT_CONTENT_HEALER_NAME", new Message("Kit.Content.Healer.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_HEALER_DESCRIPTION", new Message("Kit.Content.Healer.Description", ""));
-
-//LOOTER
-
-    getMessageManager().registerMessage("KIT_CONTENT_LOOTER_NAME", new Message("Kit.Content.Looter.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_LOOTER_DESCRIPTION", new Message("Kit.Content.Looter.Description", ""));
-
-//RUNNER
-
-    getMessageManager().registerMessage("KIT_CONTENT_RUNNER_NAME", new Message("Kit.Content.Runner.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_RUNNER_DESCRIPTION", new Message("Kit.Content.Runner.Description", ""));
-
-//MEDIUM_TANK
-
-    getMessageManager().registerMessage("KIT_CONTENT_MEDIUM_TANK_NAME", new Message("Kit.Content.Medium-Tank.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_MEDIUM_TANK_DESCRIPTION", new Message("Kit.Content.Medium-Tank.Description", ""));
-
-//HARDCORE
-
-    getMessageManager().registerMessage("KIT_CONTENT_HARDCORE_NAME", new Message("Kit.Content.Hardcore.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_HARDCORE_DESCRIPTION", new Message("Kit.Content.Hardcore.Description", ""));
-
-//TELEPORTER
-
-    getMessageManager().registerMessage("KIT_CONTENT_TELEPORTER_NAME", new Message("Kit.Content.Teleporter.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_TELEPORTER_DESCRIPTION", new Message("Kit.Content.Teleporter.Description", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_TELEPORTER_GAME_ITEM_NAME", new Message("Kit.Content.Teleporter.Game-Item.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_TELEPORTER_GAME_ITEM_DESCRIPTION", new Message("Kit.Content.Teleporter.Game-Item.Description", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_TELEPORTER_GAME_ITEM_GUI", new Message("Kit.Content.Teleport.Game-Item.GUI", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_TELEPORTER_TELEPORT_VILLAGER", new Message("Kit.Content.Teleporter.Teleport.Villager", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_TELEPORTER_TELEPORT_WARNING", new Message("Kit.Content.Teleporter.Teleport.Warning", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_TELEPORTER_TELEPORT_PLAYER", new Message("Kit.Content.Teleporter.Teleport.Player", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_TELEPORTER_TELEPORT_NOT_FOUND", new Message("Kit.Content.Teleporter.Teleport.Not-Found", ""));
-
-//HEAVY_TANK
-
-    getMessageManager().registerMessage("KIT_CONTENT_HEAVY_TANK_NAME", new Message("Kit.Content.Heavy-Tank.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_HEAVY_TANK_DESCRIPTION", new Message("Kit.Content.Heavy-Tank.Description", ""));
-
-//PREMIUM_HARDCORE
-
-    getMessageManager().registerMessage("KIT_CONTENT_PREMIUM_HARDCORE_NAME", new Message("Kit.Content.Premium-Hardcore.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_PREMIUM_HARDCORE_DESCRIPTION", new Message("Kit.Content.Premium-Hardcore.Description", ""));
-
-    //WILD_NAKED
-
-    getMessageManager().registerMessage("KIT_CONTENT_WILD_NAKED_NAME", new Message("Kit.Content.Wild-Naked.Name", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_WILD_NAKED_DESCRIPTION", new Message("Kit.Content.Wild-Naked.Description", ""));
-    getMessageManager().registerMessage("KIT_CONTENT_WILD_NAKED_CANNOT_WEAR_ARMOR", new Message("Kit.Content.Wild-Naked.Cannot-Wear-Armor", ""));
 
     //GENERAL FOR KITS
     getMessageManager().registerMessage("KIT_LOCKED_TILL", new Message("Kit.Locked-Till", ""));

@@ -1,7 +1,7 @@
 
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,10 +50,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * @author Tigerpanzer_02
@@ -100,17 +98,15 @@ public class CustomCreatureEvents implements Listener {
         if(killer == null) {
           killer = performKillerDetection(event);
         }
+        applyKillMetadata(event);
         Arena killerArena = plugin.getArenaRegistry().getArena(killer);
 
         if(killerArena != null) {
           plugin.getUserManager().addStat(killer, plugin.getStatsStorage().getStatisticType("KILLS"));
           plugin.getUserManager().addExperience(killer, 2 * arena.getArenaOption("ZOMBIE_DIFFICULTY_MULTIPLIER"));
           plugin.getRewardsHandler().performReward(killer, plugin.getRewardsHandler().getRewardType("ZOMBIE_KILL"));
-          plugin.getPowerupRegistry().spawnPowerup(entity.getLocation(), killerArena);
         }
 
-        ItemStack itemStack = customCreature.getDropItem();
-        event.getDrops().add(itemStack);
         event.setDroppedExp(0);
         filterDrops(event, customCreature, killer);
         if(killer != null) {
@@ -155,12 +151,35 @@ public class CustomCreatureEvents implements Listener {
     return null;
   }
 
+  private void applyKillMetadata(EntityDeathEvent event) {
+    EntityDamageEvent cause = event.getEntity().getLastDamageCause();
+    if (!(cause instanceof EntityDamageByEntityEvent)) {
+      return;
+    }
+    Entity entity = ((EntityDamageByEntityEvent) cause).getDamager();
+    if (entity instanceof Wolf || entity instanceof IronGolem) {
+      if (!entity.hasMetadata("VD_OWNER_UUID")) {
+        return;
+      }
+      if (!entity.hasMetadata("VD_ENTITY_KILLS")) {
+        entity.setMetadata("VD_ENTITY_KILLS", new FixedMetadataValue(plugin, 1));
+      } else {
+        int kills = entity.getMetadata("VD_ENTITY_KILLS").get(0).asInt();
+        entity.removeMetadata("VD_ENTITY_KILLS", plugin);
+        entity.setMetadata("VD_ENTITY_KILLS", new FixedMetadataValue(plugin, kills + 1));
+      }
+    }
+  }
+
   private void filterDrops(EntityDeathEvent event, CustomCreature creature, Player player) {
-    List<ItemStack> filtered = event.getDrops()
-      .stream()
-      .filter(Objects::nonNull)
-      .filter(i -> XMaterial.ROTTEN_FLESH.isSimilar(i) || (creature.getDropItem() != null && i.getType().equals(creature.getDropItem().getType())))
-      .collect(Collectors.toList());
+    List<ItemStack> filtered = new ArrayList<>();
+    for (ItemStack itemStack : event.getDrops()) {
+      if (itemStack == null || !XMaterial.ROTTEN_FLESH.isSimilar(itemStack)) {
+        continue;
+      }
+      itemStack.setAmount(1);
+      filtered.add(itemStack);
+    }
     event.getDrops().clear();
     if(filtered.isEmpty() || player == null) {
       return;

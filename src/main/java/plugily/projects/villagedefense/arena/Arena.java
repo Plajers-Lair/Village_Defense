@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 package plugily.projects.villagedefense.arena;
 
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Creature;
@@ -25,6 +26,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wolf;
@@ -42,6 +44,7 @@ import plugily.projects.villagedefense.arena.managers.EnemySpawnManager;
 import plugily.projects.villagedefense.arena.managers.ScoreboardManager;
 import plugily.projects.villagedefense.arena.managers.ShopManager;
 import plugily.projects.villagedefense.arena.managers.maprestorer.MapRestorerManager;
+import plugily.projects.villagedefense.arena.midwave.MidWaveEvent;
 import plugily.projects.villagedefense.arena.states.EndingState;
 import plugily.projects.villagedefense.arena.states.InGameState;
 import plugily.projects.villagedefense.arena.states.RestartingState;
@@ -54,6 +57,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -69,9 +73,11 @@ public class Arena extends PluginArena {
   private final List<Wolf> wolves = new ArrayList<>();
   private final List<Villager> villagers = new ArrayList<>();
   private final List<IronGolem> ironGolems = new ArrayList<>();
+  private final List<LivingEntity> specialEntities = new ArrayList<>();
   private final List<Item> droppedFleshes = new ArrayList<>();
   private final List<Entity> spawnedEntities = new ArrayList<>();
   private MapRestorerManager mapRestorerManager;
+  private MidWaveEvent midWaveEvent;
 
   private final Map<SpawnPoint, List<Location>> spawnPoints = new EnumMap<>(SpawnPoint.class);
 
@@ -243,6 +249,9 @@ public class Arena extends PluginArena {
     String name = CreatureUtils.getRandomVillagerName();
     villager.setMetadata(CustomCreature.CREATURE_CUSTOM_NAME_METADATA, new FixedMetadataValue(plugin, name));
     villager.setCustomName(CreatureUtils.getHealthNameTag(villager));
+    villager.setVillagerLevel(5);
+    villager.setVillagerType(Villager.Type.values()[ThreadLocalRandom.current().nextInt(Villager.Type.values().length)]);
+    villager.setProfession(Villager.Profession.values()[ThreadLocalRandom.current().nextInt(Villager.Profession.values().length)]);
     addVillager(villager);
   }
 
@@ -258,8 +267,10 @@ public class Arena extends PluginArena {
   public Creature spawnWolfForce(Location location, Player player) {
     Wolf wolf = CreatureUtils.getCreatureInitializer().spawnWolf(location);
     wolf.setMetadata("VD_OWNER_UUID", new FixedMetadataValue(getPlugin(), player.getUniqueId().toString()));
+    wolf.setMetadata("VD_ALIVE_SINCE_WAVE", new FixedMetadataValue(getPlugin(), getWave()));
     wolf.setOwner(player);
     wolf.setCustomNameVisible(true);
+    wolf.setCollarColor(DyeColor.values()[ThreadLocalRandom.current().nextInt(DyeColor.values().length)]);
     wolf.setCustomName(new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_WOLF_NAME").asKey().integer(0).player(player).build());
     new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_WOLF_SPAWN").asKey().player(player).sendPlayer();
     addWolf(wolf);
@@ -278,8 +289,10 @@ public class Arena extends PluginArena {
   public Creature spawnGolemForce(Location location, Player player) {
     IronGolem ironGolem = CreatureUtils.getCreatureInitializer().spawnGolem(location);
     ironGolem.setMetadata("VD_OWNER_UUID", new FixedMetadataValue(getPlugin(), player.getUniqueId().toString()));
+    ironGolem.setMetadata("VD_ALIVE_SINCE_WAVE", new FixedMetadataValue(getPlugin(), getWave()));
     ironGolem.setCustomNameVisible(true);
     ironGolem.setCustomName(new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_GOLEM_NAME").asKey().integer(0).player(player).build());
+    ironGolem.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(150.0);
     new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_GOLEM_SPAWN").asKey().player(player).sendPlayer();
     addIronGolem(ironGolem);
     MiscUtils.getEntityAttribute(ironGolem, Attribute.GENERIC_MOVEMENT_SPEED).ifPresent(ai -> ai.setBaseValue(0.25));
@@ -351,6 +364,16 @@ public class Arena extends PluginArena {
     return villagers;
   }
 
+  /**
+   * Get special alive entities.
+   *
+   * @return alive special entities
+   */
+  @NotNull
+  public List<LivingEntity> getSpecialEntities() {
+    return specialEntities;
+  }
+
   public boolean checkLevelUpRottenFlesh() {
     String rottenFleshLevelOption = "ROTTEN_FLESH_LEVEL";
     int rottenFleshLevel = getArenaOption(rottenFleshLevelOption);
@@ -384,6 +407,14 @@ public class Arena extends PluginArena {
     return mapRestorerManager;
   }
 
+  public MidWaveEvent getMidWaveEvent() {
+    return midWaveEvent;
+  }
+
+  public void setMidWaveEvent(MidWaveEvent midWaveEvent) {
+    this.midWaveEvent = midWaveEvent;
+  }
+
   @NotNull
   public List<Location> getZombieSpawns() {
     return spawnPoints.getOrDefault(SpawnPoint.ZOMBIE, new ArrayList<>());
@@ -409,6 +440,14 @@ public class Arena extends PluginArena {
     wolf.remove();
     wolves.remove(wolf);
     spawnedEntities.remove(wolf);
+  }
+
+  public void addSpecialEntity(LivingEntity livingEntity) {
+    specialEntities.add(livingEntity);
+  }
+
+  public void removeSpecialEntity(LivingEntity entity) {
+    specialEntities.remove(entity);
   }
 
   public enum SpawnPoint {

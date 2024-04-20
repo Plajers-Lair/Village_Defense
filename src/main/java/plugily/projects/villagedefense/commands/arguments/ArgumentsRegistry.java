@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import plugily.projects.villagedefense.Main;
 import plugily.projects.villagedefense.commands.arguments.admin.AddOrbsArgument;
 import plugily.projects.villagedefense.commands.arguments.admin.ClearEntitiesArgument;
 import plugily.projects.villagedefense.commands.arguments.admin.RespawnArgument;
+import plugily.projects.villagedefense.commands.arguments.admin.ScriptEngineDebugArgument;
 import plugily.projects.villagedefense.commands.arguments.admin.SetPriceArgument;
 import plugily.projects.villagedefense.commands.arguments.admin.SetWaveUnlockArgument;
 import plugily.projects.villagedefense.commands.arguments.admin.arena.SetWaveArgument;
@@ -48,5 +49,6 @@ public class ArgumentsRegistry extends PluginArgumentsRegistry {
     new RespawnArgument(this);
     new SetPriceArgument(this);
     new SetWaveUnlockArgument(this);
+    new ScriptEngineDebugArgument(this);
   }
 }

@@ -252,6 +252,11 @@ In-Game:
       Villager:
         Died: "%color_chat_issue%%plugin_prefix% A villager has died!"
         Names: "Jagger,Kelsey,Kelton,Haylie,Harlow,Howard,Wulffric,Winfred,Ashley,Bailey,Beckett,Alfredo,Alfred,Adair,Edgar,ED,Eadwig,Edgaras,Buckley,Stanley,Nuffley,Mary,Jeffry,Rosaly,Elliot,Harry,Sam,Rosaline,Tom,Ivan,Kevin,Adam"
+        Special-Offer: "&e&l-10% SHOP OFFER"
+        Offering-Sale: "%plugin_prefix% Before wave starts, villager %value% offers &e&l-10% SHOP DEAL"
+        Rotten-Offer: "&c&lSELL ME ROTTEN FLESH"
+        Rotten-Sale: "%plugin_prefix% A wandering traded has arrived, trade your %value% for bonus hearts and orbs before wave starts!"
+        Pinata-Event: "%plugin_prefix% A wild Pinata has appeared! Punch it to earn some loot!"
       Wave:
         Stuck-Zombies: "%color_chat_issue%%plugin_prefix% It seems like the last zombie got stuck somewhere. No worries! The gods killed him for you!"
         Spectator-Warning: "%color_chat_issue%%plugin_prefix% You are a spectator! You can't do anything until you'd respawned at the start of the next wave!"
@@ -267,14 +272,18 @@ In-Game:
           Start-1: "10,20,10;;&c&l1"
       Entities:
         Cant-Ride-Other: "%color_chat_issue%%plugin_prefix% You can't ride pet you don't own!"
+        Cant-Upgrade-This: "%color_chat_issue%%plugin_prefix% You can't upgrade this pet!"
         Cant-Upgrade-Other: "%color_chat_issue%%plugin_prefix% You can't upgrade pet you don't own!"
         Wolf:
           Spawn: "%plugin_prefix% Wolf spawned in the village!"
           Name: "%player%'s Wolf &8(&7LVL %number%&8)"
-          Death: "%color_chat_issue%%plugin_prefix% One of your wolves were killed!"
+          Death: "%color_chat_issue%%plugin_prefix% Your Wolf (LVL %number%, Kills %value%) was killed!"
         Golem:
           Spawn: "%plugin_prefix% Golem spawned in the village!"
           Name: "%player%'s Golem &8(&7LVL %number%&8)"
+          Death: "%color_chat_issue%%plugin_prefix% Your Iron Golem (LVL %number%, Kills %value%) was killed!"
+        Zombie:
+          Stunned-Name: "&c&lSTUNNED"
       Shop:
         GUI: "&lShop"
         Golem-Item-Name: "Spawn Golem"
@@ -283,8 +292,12 @@ In-Game:
         Not-Enough-Currency: "%color_chat_issue%%plugin_prefix% You need more orbs to buy this item!"
         Currency: "orbs"
         Wave-Lock: "&6Locked till wave %number%"
+        Item-Locked-Name: "&c&lITEM LOCKED"
         Wave-Still-Locked: "%color_chat_issue%%plugin_prefix% This item will be unlocked at wave %number%!"
         Not-Defined: "%color_chat_issue%%plugin_prefix% Shop wasn't set up! Contact staff!"
+        Special-Offer: "&e&l-10% SPECIAL OFFER"
+        New-Shop-Offers: "%plugin_prefix% New offers are now available in Villager Shop!"
+        Auto-Armor-Equipped: "%plugin_prefix% Armor piece was equipped automatically!"
 
 #
 # Sign messages
@@ -366,87 +379,31 @@ Kit:
       Unlock-At-Level: "Unlocks at level %number%"
       Unlock-In-Store: "&bUnlock this in the store!"
   Content:
-    Zombie-Teleporter:
-      Name: "&2Zombie Teleporter"
-      Description:
-        - "Teleport those zombies to you!"
-        - "Many people think this is the worst kit!"
-        - "I must admit they are totally wrong!"
-      Game-Item:
-        GUI: "Zombie Teleporter"
-        Name: "Zombie Teleporter"
-        Description:
-          - "Teleport zombies to you!"
-    Teleport:
-      Zombie: "&aTeleported weakened zombie to you!"
-      Not-Found: "&cThere are no zombies to teleport!"
     Knight:
       Name: "&2Knight"
       Description:
         - "This is the one and only knight kit!"
         - "Many people think this is the worst kit!"
         - "I must admit they are totally wrong!"
-    Light-Tank:
-      Name: "&2Light Tank"
-      Description:
-        - "You are Junior tank!"
-    Archer:
-      Name: "&6Archer"
-      Description:
-        - "Start with a bow, leather armor and a wooden sword."
-        - "Archers are loved by the villagers, know that!"
-    Puncher:
-      Name: "&6Puncher"
-      Description:
-        - "Punch those zombies back with your epic shovel!"
-        - "Knockback V is not unknown to you!"
-    Healer:
-      Name: "&6Healer"
-      Description:
-        - "Being a healer is the same as being loved."
-        - "You are able to heal your teammates and villagers!"
-        - "Gets a restock every wave!"
-    Looter:
-      Name: "&6Looter"
-      Description:
-        - "Get one additional rotten flesh"
-        - "on every zombie kill!"
-    Runner:
-      Name: "&6Runner"
-      Description:
-        - "Parkour is your passion!"
-        - "You are able to run faster than everybody else."
-        - "You have also the ability to jump higher."
-    Medium-Tank:
-      Name: "&6Medium Tank"
-      Description:
-        - "Start off with 6 more hearts!"
-        - "Don't be afraid!"
-        - "You have plenty hearts left to lose!"
-    Hardcore:
-      Name: "&6Hardcore"
-      Description:
-        - "You'll see yourself"
-        - "why this is hardcore"
     Cleaner:
       Name: "&bCleaner"
       Description:
-        - "&6&lGAME POWER: &7poor/strong/mediocre"
-        - "&6&lCLASS: &7mixed, support/damage dealer"
+        - "&6&lGAME POWER: &7poor/&7strong/&7mediocre"
+        - "&6&lCLASS: &7mixed, support/&7damage dealer"
         - ""
         - "&6&lABILITIES:"
         - "&a&l• POP AWE (PASSIVE):"
         - "  &7Every 5 seconds pop random"
         - "  &71/2/3 alive zombies"
         - "&a&l• CLEANSING STICK:"
-        - "  &7On use pop random 10/20/25"
+        - "  &7On use pop random 10/15/20"
         - "  &7alive zombies with a delay"
         - "  &7of 0.5s every 5 pops"
         - "  &7(&c&lCOOLDOWN 45/&c&l35/&c&l30s&7)"
         - "&e&l• POPLUST (ULTIMATE)"
         - "  &7On use every enemy can be"
-        - "  &7oneshot and popped by anyone"
-        - "  &7(&c&lCAST TIME -/&c&l5&7/&c&l7s&7, &c&lCOOLDOWN 70s&7)"
+        - "  &7oneshot and popped by yourself"
+        - "  &7(&c&lCAST TIME -/&c&l7&7/&c&l11s&7, &c&lCOOLDOWN 75s&7)"
         - "  &7(&c&lUNLOCKED IN MID GAME&7)"
       Game-Item:
         Cleansing-Stick:
@@ -461,8 +418,8 @@ Kit:
           Name: "&e&lPOPLUST &7(Ultimate)"
           Description:
             - "On use every enemy can be"
-            - "oneshot and popped by anyone"
-            - "&c&lCAST TIME: &7-/&75/&77s, &c&lCOOLDOWN &760s"
+            - "oneshot and popped by yourself"
+            - "&c&lCAST TIME: &7-/&77/&711s, &c&lCOOLDOWN &775s"
           Activate: "&7Poplust incoming!"
           Active-Title: "0,20,0;;&e&lONESHOT ENEMIES NOW!"
           Active-Action-Bar:
@@ -471,7 +428,7 @@ Kit:
     Tornado:
       Name: "&bTornado"
       Description:
-        - "&6&lGAME POWER: &7?/?/?"
+        - "&6&lGAME POWER: &7?/&7?/&7?"
         - "&6&lCLASS: &7mixed, support"
         - ""
         - "&6&lABILITIES:"
@@ -513,47 +470,18 @@ Kit:
           Active-Action-Bar:
             - "&e&lFINAL FLIGHT ACTIVE &7(%number%s)"
             - "&c&lFINAL FLIGHT ACTIVE &7(%number%s)"
-    Teleporter:
-      Name: "&bTeleporter"
-      Description:
-        - "Everybody is astonished about your teleportation."
-        - "Nobody knows how to do it except you! Due to this,"
-        - "you are able to teleport to villagers"
-        - "that need help in no time!"
-      Game-Item:
-        Name: "&rTeleportation Menu"
-        Description:
-          - "Right click to open teleportation menu!"
-        GUI: "Teleporter Menu"
-      Teleport:
-        Villager: "&aTeleported to the villager!"
-        Warning: "&4Village defense didn't found that villager! That villager is probably already dead!"
-        Player: "&aTeleported to %player%"
-        Not-Found: "&cPlayer not found! Try again!"
-    Heavy-Tank:
-      Name: "&bHeavy Tank"
-      Description:
-        - "Start off with iron armor and a double"
-        - "amount of hearts! Yup, that's right,"
-        - "you'll be the last man standing!"
-    Premium-Hardcore:
-      Name: "&bPremium Hardcore Master"
-      Description:
-        - "One hit most zombies with your OP sword!"
-        - "However be careful. this kit is only for"
-        - "the pros! Do not use it if you aren't a pro!"
     Builder:
       Name: "&6Builder"
       Description:
-        - "&6&lGAME POWER: &7poor/mediocre/mediocre"
+        - "&6&lGAME POWER: &7poor/&7mediocre/&7mediocre"
         - "&6&lCLASS: &7mixed, support"
         - ""
         - "&6&lABILITIES:"
         - "&a&l• RESTOCK (PASSIVE):"
-        - "  &7Receive 1 door every 5/3/2 waves"
+        - "  &7Receive 1 door every 5/&73/&72 waves"
         - "  &7to replace broken ones and receive"
-        - "  &71/2/3 fences every wave to block"
-        - "  &7enemies that last 10/12/14s"
+        - "  &71/&72/&73 fences every wave to block"
+        - "  &7enemies that last 10/&712/&714s"
         - "&a&l• EARTHED:"
         - "  &7On use every ally cannot be knocked"
         - "  &7back by any non explosion damage"
@@ -568,7 +496,7 @@ Kit:
           Name: "&6&lBLOCKING FENCE"
           Description:
             - "On use block path for enemies"
-            - "that last 10/12/14s"
+            - "that last 10/&712/&714s"
         Door:
           Name: "&6&lREPLACEABLE DOOR"
           Description:
@@ -596,7 +524,7 @@ Kit:
     Terminator:
       Name: "&6Terminator"
       Description:
-        - "&6&lGAME POWER: &7mediocre/strong/strong"
+        - "&6&lGAME POWER: &7mediocre/&7strong/&7strong"
         - "&6&lCLASS: &7melee, damage dealer"
         - ""
         - "&6&lABILITIES:"
@@ -604,9 +532,9 @@ Kit:
         - "  &7Receive sword that scales with waves:"
         - "  &e&lWAVE 5: &720% on-hit burn chance"
         - "  &e&lWAVE 10: &75% instakill chance"
-        - "  &e&lWAVE 15: &78% lifesteal, 40% on-hit burn"
+        - "  &e&lWAVE 15: &76% lifesteal, 40% on-hit burn"
         - "  &e&lWAVE 20: &720% shared combust chance"
-        - "  &e&lWAVE 25: &740% large knockback chance"
+        - "  &e&lWAVE 25: &735% large knockback chance"
         - "  &e&lWAVE 30+: &7+1% dmg each wave (40% cap)"
         - "&7(&c&lBELOW ARE UNLOCKED IN MID GAME&7)"
         - "&a&l• NEVERDEATH &7(&c&lCOOLDOWN 20s&7):"
@@ -623,9 +551,9 @@ Kit:
             - "&7Terminus blade scales as game progresses:"
             - "  &e&lWAVE 5: &720% on-hit burn chance"
             - "  &e&lWAVE 10: &75% instakill chance"
-            - "  &e&lWAVE 15: &78% lifesteal, 40% on-hit burn"
+            - "  &e&lWAVE 15: &76% lifesteal, 40% on-hit burn"
             - "  &e&lWAVE 20: &720% shared combust chance"
-            - "  &e&lWAVE 25: &740% large knockback chance"
+            - "  &e&lWAVE 25: &735% large knockback chance"
             - "  &e&lWAVE 30+: &7+1% dmg each wave (40% cap)"
         Neverdeath:
           Name: "&6&lNEVERDEATH"
@@ -654,7 +582,7 @@ Kit:
         - ""
         - "&6&lABILITIES:"
         - "&a&l• ONESHOT (PASSIVE):"
-        - "  &7Have 10/20/30% chance to oneshot"
+        - "  &7Have 10/&720/&730% chance to oneshot"
         - "  &7enemy with your arrows"
         - "&a&l• EFFECTIVE ARROWS (PASSIVE):"
         - "  &7Each arrow applies random effect:"
@@ -664,7 +592,7 @@ Kit:
         - "  &e&lCOMBUST: &710s AOE combust"
         - "  &7(&c&lUNLOCKED IN MID GAME&7)"
         - "&e&l• ARROW RAIN (ULTIMATE)"
-        - "  &7On use launch -/8/12 arrows that"
+        - "  &7On use launch -/&78/&712 arrows that"
         - "  &7knock enemies and oneshot them"
         - "  &7(&c&lCOOLDOWN 20s&7)"
         - "  &7(&c&lUNLOCKED IN MID GAME&7)"
@@ -672,7 +600,7 @@ Kit:
         Arrow-Rain:
           Name: "&6&lARROW RAIN"
           Description:
-            - "&7On use launch -/8/12 arrows that"
+            - "&7On use launch -/&78/&712 arrows that"
             - "&7knock enemies and oneshot them"
             - "&c&lCOOLDOWN &720s"
     Medic:
@@ -722,13 +650,63 @@ Kit:
           Activate: "&7Come back my allies! We will not fall!"
           Respawned-By-Title: "&eIt's not your time yet"
           Respawned-By-Subtitle: "&7Respawned by %player%"
-    Wild-Naked:
-      Name: "&bWild Naked"
+    Crusader:
+      Name: "&bCrusader"
       Description:
-        - "You are the ultimate master!"
-        - "You start off with a iron Sharpness"
-        - "VI and Smite II sword!"
-      Cannot-Wear-Armor: "&cYou can't wear armor with the Wild Naked kit!"
+        - "&6&lGAME POWER: &7mediocre/strong/strong"
+        - "&6&lCLASS: &7melee, tank"
+        - ""
+        - "&6&lABILITIES:"
+        - "&a&l• IRON WILL (PASSIVE):"
+        - "  &7Every 3 hits you stun the enemy for"
+        - "  &72/&74/&75s and receive 1/&72/&74 &b&lCOURAGE"
+        - "  &7stacks, capped at 50. Receive blast"
+        - "  &7resistance in mid game"
+        - "&a&l• COURAGEOUS &7(&c&lCOOLDOWN 5s&7):"
+        - "  &7Use &b&lCOURAGE &7stacks that apply:"
+        - "  &e&l0 STACKS: &7absorption 1 for 5s"
+        - "  &e&l5 STACKS: &7speed boost 1 for 5s"
+        - "  &e&l15 STACKS: &715% instant heal"
+        - "  &e&l25 STACKS: &730% instant heal"
+        - "  &e&l35 STACKS: &760% instant heal"
+        - "  &e&l50 STACKS: &7burn aura for 8s"
+        - "&e&l• GLORY TO THE KING (ULTIMATE):"
+        - "  &7On cast use all &b&lCOURAGE"
+        - "  &7stacks to receive immortality"
+        - "  &7for 10s and be healed after"
+        - "  &7(&c&lCOOLDOWN -/&c&l40/&c&l25s&7)"
+        - "  &7(&c&lUNLOCKED IN MID GAME&7)"
+      Game-Item:
+        Courageous:
+          Name: "&6&lCOURAGEOUS"
+          Description:
+            - "Use &b&lCOURAGE &7stacks that apply:"
+            - "  &e&l0 STACKS: &7absorption 1 for 5s"
+            - "  &e&l5 STACKS: &7speed boost 1 for 5s"
+            - "  &e&l15 STACKS: &715% instant heal"
+            - "  &e&l25 STACKS: &730% instant heal"
+            - "  &e&l35 STACKS: &760% instant heal"
+            - "  &e&l50 STACKS: &7burn aura for 8s"
+            - "&c&lCOOLDOWN 5s"
+          Stacks:
+            Base: "&7%number%/&750 &b&lCOURAGE"
+            Max: "&7&lMAX &b&lCOURAGE"
+          Activate: "&7To the end, and then beyond, I fight on!"
+          Aura-Action-Bar:
+            - "&e&lBURN AURA ACTIVE &7(%number%s)"
+            - "&c&lBURN AURA ACTIVE &7(%number%s)"
+        Glory-To-The-King:
+          Name: "&e&lGLORY TO THE KING &7(Ultimate)"
+          Description:
+            - "On cast receive heal -/4/5 and"
+            - "absorption 3 for 20s and use all"
+            - "&b&lCOURAGE &7stacks, you cannot"
+            - "be killed for 10s"
+            - "&c&lCOOLDOWN -/&c&l40/&c&l25s"
+          Activate: "&7Death's scythe hesitates before my might!"
+          Active-Action-Bar:
+            - "&e&lGLORY TO THE KING ACTIVE &7(%number%s)"
+            - "&c&lGLORY TO THE KING ACTIVE &7(%number%s)"
     Pets-Friend:
       Name: "&bPets Friend"
       Description:
@@ -737,19 +715,19 @@ Kit:
         - ""
         - "&6&lABILITIES:"
         - "&a&l• TRUE FRIEND (PASSIVE):"
-        - "  &7Spawn 1 wolf every 3/2/1 waves and 1"
-        - "  &7golem every 4/3/2 waves, all pets"
-        - "  &7receive -/1/2 random tier I"
+        - "  &7Spawn 1 wolf every 3/&72/&71 waves and 1"
+        - "  &7golem every 4/&73/&72 waves, all pets"
+        - "  &7receive -/&71/&72 random tier I"
         - "  &7upgrades on spawn"
         - "&a&l• FIGHT OR FLIGHT:"
         - "  &7On use every spawned pet will have"
-        - "  &7increased damage I/II/III and"
+        - "  &7increased damage I/&7II/&7III and"
         - "  &7regeneration I for 10s"
         - "  &7(&c&lSPELL TIME 10s&7, &c&lCOOLDOWN 30s&7)"
         - "&e&l• UNSTOPPABLE BEASTS (ULTIMATE):"
         - "  &7On use spawn a wolf and golem"
         - "  &7will all maxed upgrades"
-        - "  &7(&c&lCOOLDOWN 120s&7)"
+        - "  &7(&c&lCOOLDOWN 140s&7)"
         - "  &7(&c&lUNLOCKED IN MID GAME&7)"
       Game-Item:
         Fight-Or-Flight:
@@ -775,8 +753,8 @@ Kit:
         - ""
         - "&6&lABILITIES:"
         - "&a&l• WIZARD WAND:"
-        - "  &7Flat 30/32/35% max health damage and"
-        - "  &7projectile pierce 5/6/7 per shot"
+        - "  &7Flat 20/25/30% max health damage and"
+        - "  &7projectile pierce 4/5/6 per shot"
         - "&a&l• CORRUPTING FLOWER:"
         - "  &7Every 3/3/2 waves receive item, on use"
         - "  &7attacks slows and burns enemies for 3s"
@@ -793,8 +771,8 @@ Kit:
           Name: "&6&lWIZARD WAND"
           Description:
             - "Right click to shoot projectile"
-            - "flat 30/32/35% max health damage"
-            - "and 5/6/7 pierce per shot"
+            - "flat 20/25/30% max health damage"
+            - "and 4/5/6 pierce per shot"
         Flower:
           Name: "&c&lCORRUPTING FLOWER"
           Description:

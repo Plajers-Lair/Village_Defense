@@ -2,10 +2,10 @@
 Entity-Upgrades:
   # Cost of x tier (in orbs), ex 1: 100 means 1st tier cost 100 orbs to upgrade
   Health-Tiers:
-    '1': 100
-    '2': 200
-    '3': 350
-    '4': 500
+    '1': 200
+    '2': 300
+    '3': 500
+    '4': 650
   Damage-Tiers:
     '1': 150
     '2': 300

@@ -16,8 +16,7 @@ Powerups:
       material: BLAZE_POWDER
       # Add as many potion effects as you want
       # Format: PotionName, Duration, Amplifier
-      potion-effect:
-        - ""
+      potion-effect: [ ]
       # PLAYER for pickup player | ALL for all arena players
       potion-type: PLAYER
       # like rewards
@@ -56,8 +55,7 @@ Powerups:
       material: IRON_INGOT
       # Add as many potion effects as you want
       # Format: PotionName, Duration, Amplifier
-      potion-effect:
-        - "REGENERATION, 3, 1"
+      potion-effect: [ ]
       # PLAYER for pickup player | ALL for all arena players
       potion-type: PLAYER
       # like rewards

@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.util.Vector;
 import plugily.projects.villagedefense.Main;
 
@@ -93,7 +94,11 @@ public class RideableCreatureEvents {
     double radians = Math.toRadians(location.getYaw());
     double x = -forward * Math.sin(radians) + sideways * Math.cos(radians);
     double z = forward * Math.cos(radians) + sideways * Math.sin(radians);
-    Vector velocity = new Vector(x, 0.0, z).normalize().multiply(0.5);
+    double multiplier = 0.4;
+    if (vehicle instanceof Villager) {
+      multiplier = 0.25;
+    }
+    Vector velocity = new Vector(x, 0.0, z).normalize().multiply(multiplier);
     velocity.setY(vehicle.getVelocity().getY());
     if(!Double.isFinite(velocity.getX())) {
       velocity.setX(0);
@@ -102,7 +107,7 @@ public class RideableCreatureEvents {
       velocity.setZ(0);
     }
     if(jump && vehicle.isOnGround()) {
-      velocity.setY(0.5);
+      velocity.setY(0.45);
     }
     try {
       velocity.checkFinite();

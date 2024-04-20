@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ public class DoorBreakListener extends BukkitRunnable {
 
   public DoorBreakListener(Main plugin) {
     this.plugin = plugin;
-    runTaskTimer(plugin, 1, 20);
+    runTaskTimer(plugin, 1, 30);
   }
 
   @Override

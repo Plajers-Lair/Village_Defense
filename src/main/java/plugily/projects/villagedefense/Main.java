@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 package plugily.projects.villagedefense;
 
+import fr.skytasul.glowingentities.GlowingEntities;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPluginLoader;
@@ -35,41 +36,30 @@ import plugily.projects.villagedefense.arena.ArenaManager;
 import plugily.projects.villagedefense.arena.ArenaRegistry;
 import plugily.projects.villagedefense.arena.ArenaUtils;
 import plugily.projects.villagedefense.arena.managers.enemy.spawner.EnemySpawnerRegistry;
+import plugily.projects.villagedefense.arena.powerup.PowerupEvents;
 import plugily.projects.villagedefense.boot.AdditionalValueInitializer;
 import plugily.projects.villagedefense.boot.MessageInitializer;
 import plugily.projects.villagedefense.boot.PlaceholderInitializer;
 import plugily.projects.villagedefense.commands.arguments.ArgumentsRegistry;
 import plugily.projects.villagedefense.creatures.CreatureUtils;
 import plugily.projects.villagedefense.creatures.DoorBreakListener;
+import plugily.projects.villagedefense.events.EntityUpgradeListener;
 import plugily.projects.villagedefense.events.PluginEvents;
-import plugily.projects.villagedefense.handlers.powerup.PowerupHandler;
+import plugily.projects.villagedefense.handlers.hologram.NewHologramManager;
 import plugily.projects.villagedefense.handlers.setup.SetupCategoryManager;
-import plugily.projects.villagedefense.handlers.upgrade.EntityUpgradeMenu;
-import plugily.projects.villagedefense.handlers.upgrade.upgrades.Upgrade;
-import plugily.projects.villagedefense.handlers.upgrade.upgrades.UpgradeBuilder;
-import plugily.projects.villagedefense.kits.KitHelper;
-import plugily.projects.villagedefense.kits.free.KnightKit;
-import plugily.projects.villagedefense.kits.free.LightTankKit;
-import plugily.projects.villagedefense.kits.level.ArcherKit;
-import plugily.projects.villagedefense.kits.level.HardcoreKit;
-import plugily.projects.villagedefense.kits.level.HealerKit;
-import plugily.projects.villagedefense.kits.level.LooterKit;
-import plugily.projects.villagedefense.kits.level.MediumTankKit;
-import plugily.projects.villagedefense.kits.level.PuncherKit;
-import plugily.projects.villagedefense.kits.level.RunnerKit;
-import plugily.projects.villagedefense.kits.level.ZombieFinderKit;
-import plugily.projects.villagedefense.kits.overhauled.BuilderKit;
-import plugily.projects.villagedefense.kits.overhauled.CleanerKit;
-import plugily.projects.villagedefense.kits.overhauled.MedicKit;
-import plugily.projects.villagedefense.kits.overhauled.PetsFriend;
-import plugily.projects.villagedefense.kits.overhauled.ShotBowKit;
-import plugily.projects.villagedefense.kits.overhauled.TerminatorKit;
-import plugily.projects.villagedefense.kits.overhauled.TornadoKit;
-import plugily.projects.villagedefense.kits.overhauled.WizardKit;
-import plugily.projects.villagedefense.kits.premium.HeavyTankKit;
-import plugily.projects.villagedefense.kits.premium.NakedKit;
-import plugily.projects.villagedefense.kits.premium.PremiumHardcoreKit;
-import plugily.projects.villagedefense.kits.premium.TeleporterKit;
+import plugily.projects.villagedefense.handlers.upgrade.EntityUpgradeHandlerEvents;
+import plugily.projects.villagedefense.handlers.upgrade.NewEntityUpgradeManager;
+import plugily.projects.villagedefense.kits.BuilderKit;
+import plugily.projects.villagedefense.kits.CleanerKit;
+import plugily.projects.villagedefense.kits.CrusaderKit;
+import plugily.projects.villagedefense.kits.KnightKit;
+import plugily.projects.villagedefense.kits.MedicKit;
+import plugily.projects.villagedefense.kits.PetsFriend;
+import plugily.projects.villagedefense.kits.ShotBowKit;
+import plugily.projects.villagedefense.kits.TerminatorKit;
+import plugily.projects.villagedefense.kits.TornadoKit;
+import plugily.projects.villagedefense.kits.WizardKit;
+import plugily.projects.villagedefense.kits.utils.KitHelper;
 import plugily.projects.villagedefense.utils.ProtocolUtils;
 
 import java.io.File;
@@ -86,7 +76,9 @@ public class Main extends PluginMain {
   private ArenaRegistry arenaRegistry;
   private ArenaManager arenaManager;
   private ArgumentsRegistry argumentsRegistry;
-  private EntityUpgradeMenu entityUpgradeMenu;
+  private NewEntityUpgradeManager entityUpgradeManager;
+  private NewHologramManager newHologramManager;
+  private GlowingEntities glowingEntities;
 
   @TestOnly
   public Main() {
@@ -103,9 +95,9 @@ public class Main extends PluginMain {
     long start = System.currentTimeMillis();
     MessageInitializer messageInitializer = new MessageInitializer(this);
     super.onEnable();
-    if(!validateStartup()) {
+    /*if(!validateStartup()) {
       return;
-    }
+    }*/
     getDebugger().debug("[System] [Plugin] Initialization start");
     new PlaceholderInitializer(this);
     messageInitializer.registerMessages();
@@ -138,6 +130,7 @@ public class Main extends PluginMain {
     KitHelper.init(this);
     ProtocolUtils.init(this);
     new ArenaEvents(this);
+    new PowerupEvents(this);
     arenaManager = new ArenaManager(this);
     arenaRegistry = new ArenaRegistry(this);
     arenaRegistry.registerArenas();
@@ -146,13 +139,14 @@ public class Main extends PluginMain {
     argumentsRegistry = new ArgumentsRegistry(this);
     enemySpawnerRegistry = new EnemySpawnerRegistry(this);
     entityUpgradesConfig = ConfigUtils.getConfig(this, "entity_upgrades");
-    Upgrade.init(this);
-    UpgradeBuilder.init(this);
-    entityUpgradeMenu = new EntityUpgradeMenu(this);
+    entityUpgradeManager = new NewEntityUpgradeManager(this);
+    newHologramManager = new NewHologramManager(this);
     new DoorBreakListener(this);
     CreatureUtils.init(this);
-    new PowerupHandler(this);
     new PluginEvents(this);
+    new EntityUpgradeListener(this);
+    new EntityUpgradeHandlerEvents(this);
+    this.glowingEntities = new GlowingEntities(this);
     addPluginMetrics();
   }
 
@@ -160,9 +154,8 @@ public class Main extends PluginMain {
     long start = System.currentTimeMillis();
     getDebugger().debug("Adding kits...");
     addFileName("kits");
-    Class<?>[] classKitNames = new Class[]{KnightKit.class, LightTankKit.class, ZombieFinderKit.class, ArcherKit.class, PuncherKit.class, HealerKit.class,
-      LooterKit.class, RunnerKit.class, MediumTankKit.class, TerminatorKit.class, HardcoreKit.class, CleanerKit.class, TeleporterKit.class, HeavyTankKit.class,
-      ShotBowKit.class, PremiumHardcoreKit.class, TornadoKit.class, BuilderKit.class, PetsFriend.class, MedicKit.class, NakedKit.class, WizardKit.class};
+    Class<?>[] classKitNames = new Class[]{KnightKit.class, BuilderKit.class, TornadoKit.class, ShotBowKit.class, MedicKit.class,
+      CleanerKit.class, PetsFriend.class, TerminatorKit.class, CrusaderKit.class, WizardKit.class};
     for(Class<?> kitClass : classKitNames) {
       try {
         kitClass.getDeclaredConstructor().newInstance();
@@ -208,8 +201,16 @@ public class Main extends PluginMain {
     return arenaManager;
   }
 
-  public EntityUpgradeMenu getEntityUpgradeMenu() {
-    return entityUpgradeMenu;
+  public NewEntityUpgradeManager getEntityUpgradeManager() {
+    return entityUpgradeManager;
+  }
+
+  public NewHologramManager getNewHologramManager() {
+    return newHologramManager;
+  }
+
+  public GlowingEntities getGlowingEntities() {
+    return glowingEntities;
   }
 
   @Override

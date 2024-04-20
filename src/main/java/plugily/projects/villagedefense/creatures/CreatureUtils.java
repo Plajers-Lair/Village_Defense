@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 package plugily.projects.villagedefense.creatures;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Creature;
@@ -26,6 +27,7 @@ import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wolf;
+import org.bukkit.metadata.FixedMetadataValue;
 import plugily.projects.minigamesbox.classic.handlers.language.MessageBuilder;
 import plugily.projects.minigamesbox.classic.utils.version.VersionUtils;
 import plugily.projects.villagedefense.Main;
@@ -83,6 +85,24 @@ public class CreatureUtils {
 
   public static String getHealthNameTag(Creature creature) {
     return getHealthNameTagPreDamage(creature, 0);
+  }
+
+  public static void doStunEnemy(Creature creature, int seconds) {
+    if (creature.hasMetadata("VD_STUNNED")) {
+      return;
+    }
+    final String customName = creature.getMetadata(CustomCreature.CREATURE_CUSTOM_NAME_METADATA).get(0).asString();
+    String message = new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_ZOMBIE_STUNNED_NAME").asKey().build();
+    creature.setMetadata("VD_STUNNED", new FixedMetadataValue(getPlugin(), true));
+    creature.setMetadata(CustomCreature.CREATURE_CUSTOM_NAME_METADATA, new FixedMetadataValue(getPlugin(), message));
+    creature.setAI(false);
+    creature.setCustomName(CreatureUtils.getHealthNameTag(creature));
+    Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
+      creature.setAI(true);
+      creature.removeMetadata("VD_STUNNED", getPlugin());
+      creature.setMetadata(CustomCreature.CREATURE_CUSTOM_NAME_METADATA, new FixedMetadataValue(getPlugin(), customName));
+      creature.setCustomName(CreatureUtils.getHealthNameTag(creature));
+    }, 20L * seconds);
   }
 
   /**

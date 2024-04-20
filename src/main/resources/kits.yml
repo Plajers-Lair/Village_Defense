@@ -4,47 +4,33 @@
 #         https://www.spigotmc.org/resources/55010/
 #
 
-# Only kits that inherits level kit feature will be available to modify here.
-# Filling here other kits won't change anything as they inherits premium or free kit.
-Required-Level:
-  ZombieFinder: 1
-  Archer: 2
-  Puncher: 4
-  Healer: 6
-  Looter: 8
-  Runner: 10
-  MediumTank: 12
-  Worker: 15
-  GolemFriend: 18
-  Terminator: 20
-  Hardcore: 100
+# When integration with Vault is available players can purchase kits for one game via economy plugin
+Kit-One-Time-Prices:
+  Knight: 0 #free because default
+  Builder: 60
+  Tornado: 60
+  Shot-Bow: 80
+  Medic: 80
+  Cleaner: 100
+  Pets-Friend: 100
+  Terminator: 120
+  Crusader: 140
+  Wizard: 160
 
 # Here you can disable plugily projects preconfigured kits.
 # Set 'false' to disable.
 Enabled-Game-Kits:
   # Knight is default kit, it cannot be disabled
   #Knight: true
-  LightTank: true
-  Archer: true
-  Hardcore: true
-  Healer: true
-  Looter: true
-  MediumTank: true
-  Puncher: true
-  Runner: true
   Terminator: true
-  ZombieFinder: true
   Cleaner: true
-  HeavyTank: true
   Medic: true
-  Naked: true
-  PremiumHardcore: true
   ShotBow: true
-  Teleporter: true
   Tornado: true
   Wizard: true
   PetsFriend: true
   Builder: true
+  Crusader: true
 
 # The cooldown in seconds for some kit items
 Kit-Cooldown:
@@ -53,7 +39,7 @@ Kit-Cooldown:
       I: 45
       II: 35
       III: 30
-    Poplust: 70
+    Poplust: 75
   Shot-Bow: 5
   Wizard:
     Flower: 15

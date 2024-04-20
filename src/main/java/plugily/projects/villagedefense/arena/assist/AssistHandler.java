@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -119,6 +119,7 @@ public class AssistHandler {
         //only count indirect (debuffs) or damage to the enemy
         switch(data.getType()) {
           case DAMAGE:
+            Entity entity = Bukkit.getEntity(data.getUuid());
             damageDone.put(assister, data.getValue());
             break;
           case DEBUFF:

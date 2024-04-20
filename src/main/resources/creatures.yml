@@ -70,7 +70,7 @@ Creatures:
             spawn_lower: 0
       # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/attribute/Attribute.html
       attributes:
-        GENERIC_MOVEMENT_SPEED: 0.25
+        GENERIC_MOVEMENT_SPEED: 0.2
         GENERIC_MAX_HEALTH: 2.0
         GENERIC_KNOCKBACK_RESISTANCE: 2.0
         GENERIC_ATTACK_DAMAGE: 5.0

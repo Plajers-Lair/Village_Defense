@@ -39,10 +39,16 @@ repositories {
 
 
 dependencies {
-    implementation("plugily.projects:MiniGamesBox-Classic:1.3.2-SNAPSHOT2") { isTransitive = false }
-    compileOnly("org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT")
+    implementation(files("lib/box-classic.jar"))
+    implementation(files("lib/box-db.jar"))
+    implementation(files("lib/box-inv.jar"))
+    implementation(files("lib/box-utils.jar"))
+    implementation("org.openjdk.nashorn:nashorn-core:15.1")
+    implementation("io.github.skytasul:glowingentities:1.3.2")
+    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("org.jetbrains:annotations:24.0.1")
 
+    compileOnly("com.mojang:authlib:3.11.50")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
     compileOnly(files("lib/spigot/1.8.8-R0.1.jar"))
 }

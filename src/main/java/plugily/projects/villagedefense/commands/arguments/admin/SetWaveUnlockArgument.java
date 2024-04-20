@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,7 +64,7 @@ public class SetWaveUnlockArgument {
         ItemMeta meta = item.getItemMeta();
         if(meta == null || !meta.hasLore()) {
           VersionUtils.setItemInHand(player, new ItemBuilder(item)
-            .lore(ChatColor.GOLD + new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_SHOP_WAVE_LOCK").asKey().integer(Integer.parseInt(args[1])).build()).build());
+            .lore(Integer.parseInt(args[1]) + " wave_lock").build());
           new MessageBuilder("COMMANDS_COMMAND_EXECUTED").asKey().player(player).sendPlayer();
           return;
         }
@@ -72,12 +72,12 @@ public class SetWaveUnlockArgument {
         //check any price from lore
         List<String> lore = ComplementAccessor.getComplement().getLore(meta);
         for(String search : lore) {
-          if(search.contains(new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_SHOP_WAVE_LOCK").asKey().build().replace("%number%", ""))) {
+          if (search.endsWith("wave_lock")) {
             lore.remove(search);
             break;
           }
         }
-        lore.add(0, ChatColor.GOLD + new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_SHOP_WAVE_LOCK").asKey().integer(Integer.parseInt(args[1])).build());
+        lore.add(0, Integer.parseInt(args[1]) + " wave_lock");
         ComplementAccessor.getComplement().setLore(meta, lore);
         item.setItemMeta(meta);
         new MessageBuilder("COMMANDS_COMMAND_EXECUTED").asKey().player(player).sendPlayer();

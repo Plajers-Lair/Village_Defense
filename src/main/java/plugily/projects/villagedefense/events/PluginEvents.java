@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ package plugily.projects.villagedefense.events;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
@@ -49,10 +50,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import plugily.projects.minigamesbox.classic.api.event.player.PlugilyPlayerChooseKitEvent;
 import plugily.projects.minigamesbox.classic.arena.ArenaState;
 import plugily.projects.minigamesbox.classic.handlers.language.MessageBuilder;
+import plugily.projects.minigamesbox.classic.kits.basekits.Kit;
 import plugily.projects.minigamesbox.classic.utils.version.VersionUtils;
 import plugily.projects.minigamesbox.classic.utils.version.events.api.PlugilyPlayerInteractEntityEvent;
 import plugily.projects.minigamesbox.classic.utils.version.xseries.XSound;
@@ -60,6 +63,15 @@ import plugily.projects.villagedefense.Main;
 import plugily.projects.villagedefense.api.event.game.VillageGameSecretWellEvent;
 import plugily.projects.villagedefense.arena.Arena;
 import plugily.projects.villagedefense.creatures.CreatureUtils;
+import plugily.projects.villagedefense.kits.BuilderKit;
+import plugily.projects.villagedefense.kits.CleanerKit;
+import plugily.projects.villagedefense.kits.CrusaderKit;
+import plugily.projects.villagedefense.kits.MedicKit;
+import plugily.projects.villagedefense.kits.PetsFriend;
+import plugily.projects.villagedefense.kits.ShotBowKit;
+import plugily.projects.villagedefense.kits.TerminatorKit;
+import plugily.projects.villagedefense.kits.TornadoKit;
+import plugily.projects.villagedefense.kits.WizardKit;
 import plugily.projects.villagedefense.utils.Utils;
 
 import java.util.UUID;
@@ -77,8 +89,41 @@ public class PluginEvents implements Listener {
   }
 
   @EventHandler
+  public void onConsumeClearBottle(PlayerItemConsumeEvent event) {
+    if (!plugin.getArenaRegistry().isInArena(event.getPlayer())) {
+      return;
+    }
+    //Quality of Life - remove empty glass bottles on potion consume
+    event.getPlayer().getInventory().remove(Material.GLASS_BOTTLE);
+  }
+
+  @EventHandler
   public void onKitSelectSound(PlugilyPlayerChooseKitEvent event) {
-    XSound.BLOCK_NOTE_BLOCK_HARP.play(event.getPlayer());
+    XSound.UI_BUTTON_CLICK.play(event.getPlayer());
+    playKitSound(event.getKit(), event.getPlayer());
+  }
+
+  private void playKitSound(Kit kit, Player player) {
+    //knight kit omitted
+    if (kit instanceof BuilderKit) {
+      player.playSound(player, Sound.BLOCK_WOODEN_DOOR_OPEN, 1, 0.75f);
+    } else if (kit instanceof CleanerKit) {
+      player.playSound(player, Sound.BLOCK_LAVA_EXTINGUISH, 1, 1.5f);
+    } else if (kit instanceof CrusaderKit) {
+      player.playSound(player, Sound.ITEM_GOAT_HORN_SOUND_0, 1, 1);
+    } else if (kit instanceof MedicKit) {
+      player.playSound(player, Sound.ENTITY_VILLAGER_CELEBRATE, 1, 1.25f);
+    } else if (kit instanceof PetsFriend) {
+      player.playSound(player, Sound.ENTITY_WOLF_WHINE, 1, 1.15f);
+    } else if (kit instanceof ShotBowKit) {
+      player.playSound(player, Sound.ENTITY_ARROW_HIT, 1, 0.75f);
+    } else if (kit instanceof TerminatorKit) {
+      player.playSound(player, Sound.ENTITY_WITHER_DEATH, 1, 2.0f);
+    } else if (kit instanceof TornadoKit) {
+      player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1, 0.25f);
+    } else if (kit instanceof WizardKit) {
+      player.playSound(player, Sound.AMBIENT_CAVE, 1, 2.0f);
+    }
   }
 
   @EventHandler
@@ -106,7 +151,7 @@ public class PluginEvents implements Listener {
     Entity target = event.getRightClicked();
     if(target.getType() == EntityType.VILLAGER) {
       event.setCancelled(true);
-      arena.getShopManager().openShop(event.getPlayer());
+      arena.getShopManager().openShop(event.getPlayer(), (Villager) target);
     } else if(target.getType() == EntityType.IRON_GOLEM || target.getType() == EntityType.WOLF) {
       if(target.getType() == EntityType.WOLF) {
         Wolf wolf = (Wolf) event.getRightClicked();
@@ -199,6 +244,9 @@ public class PluginEvents implements Listener {
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onCreatureHurt(EntityDamageEvent event) {
     if(!(event.getEntity() instanceof Creature)) {
+      return;
+    }
+    if (event.isCancelled()) {
       return;
     }
     for(Arena arena : plugin.getArenaRegistry().getPluginArenas()) {
@@ -309,6 +357,7 @@ public class PluginEvents implements Listener {
           return;
         }
         for(Player player : arena.getPlayers()) {
+          player.setHealth(VersionUtils.getMaxHealth(player));
           VersionUtils.setMaxHealth(player, VersionUtils.getMaxHealth(player) + 2.0);
           new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_ROTTEN_FLESH_LEVEL_UP").asKey().player(player).sendPlayer();
         }
@@ -330,7 +379,7 @@ public class PluginEvents implements Listener {
     }
 
     for(Arena arena : plugin.getArenaRegistry().getPluginArenas()) {
-      if(arena.getEnemies().contains(event.getEntity())) {
+      if (arena.getEnemies().contains(event.getEntity()) || arena.getSpecialEntities().contains(event.getEntity())) {
         event.setCancelled(true);
         break;
       }

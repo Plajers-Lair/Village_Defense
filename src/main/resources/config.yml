@@ -180,9 +180,9 @@ Respawn:
 Limit:
   Wave:
     # Should game have finite amount of waves
-    Unlimited: true
+    Unlimited: false
     # Limit of waves, if this wave ends game will end
-    Game-End: 200
+    Game-End: 50
   Spawn:
     # Limit of mobs can be spawned globally in-game
     # Will affect only buying them in in-game shop
@@ -192,7 +192,7 @@ Limit:
     Villagers: 10
     # After how many Creatures should we limit them?
     # Once limit is reached Creatures get more health so it's still harder each wave
-    Creatures: 75
+    Creatures: 85
   # Can the players buy again iron golems or wolves if these
   # entities died? The config limit and permission will be ignored.
   Entity-Buy-After-Death: false
