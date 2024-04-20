@@ -40,6 +40,7 @@ public class MessageInitializer {
   }
 
   public void registerMessages() {
+    registerGoldMessages();
     getMessageManager().registerMessage("COMMANDS_ADMIN_ADDED_ORBS", new Message("Commands.Admin.Added-Orbs", ""));
     getMessageManager().registerMessage("COMMANDS_ADMIN_RECEIVED_ORBS", new Message("Commands.Admin.Received-Orbs", ""));
 
@@ -138,6 +139,10 @@ public class MessageInitializer {
     getMessageManager().registerMessage("KIT_ABILITY_UNLOCKED", new Message("Kit.Ability-Unlocked", ""));
     getMessageManager().registerMessage("KIT_ABILITY_POWER_INCREASED", new Message("Kit.Ability-Power-Increased", ""));
     getMessageManager().registerMessage("KIT_PASSIVE_POWER_INCREASED", new Message("Kit.Passive-Power-Increased", ""));
+  }
+
+  private void registerGoldMessages() {
+    getMessageManager().registerMessage("VD_GOLD_NEW_RECORD_REACHED", new Message("Gold-Messages.New-Record-Reached", ""));
   }
 
   private void registerLocales() {

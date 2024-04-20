@@ -44,6 +44,7 @@ import plugily.projects.villagedefense.arena.midwave.MidWaveEvent;
 import plugily.projects.villagedefense.arena.midwave.PinataZombieEvent;
 import plugily.projects.villagedefense.arena.midwave.RottenOfferEvent;
 import plugily.projects.villagedefense.arena.midwave.ShopOfferEvent;
+import plugily.projects.villagedefense.arena.record.RecordsManager;
 import plugily.projects.villagedefense.creatures.CreatureUtils;
 import plugily.projects.villagedefense.handlers.upgrade.EntityUpgrade;
 
@@ -65,6 +66,7 @@ public class ArenaManager extends PluginArenaManager {
 
   private final Main plugin;
   private final List<MidWaveEvent> midWaveEvents = new ArrayList<>();
+  private final RecordsManager recordsManager;
 
   public ArenaManager(Main plugin) {
     super(plugin);
@@ -72,6 +74,7 @@ public class ArenaManager extends PluginArenaManager {
     this.midWaveEvents.add(new ShopOfferEvent(plugin));
     this.midWaveEvents.add(new RottenOfferEvent(plugin));
     this.midWaveEvents.add(new PinataZombieEvent(plugin));
+    this.recordsManager = new RecordsManager(plugin);
   }
 
   @Override
@@ -116,7 +119,8 @@ public class ArenaManager extends PluginArenaManager {
           }
           user.setStatistic("HIGHEST_WAVE", wave);
         }
-        if(plugin.getConfigPreferences().getOption("LIMIT_WAVE_UNLIMITED") && wave >= plugin.getConfig().getInt("Limit.Wave.Game-End", 25)) {
+        recordsManager.registerAndAnnounceRecord(player, (Arena) arena);
+        if (wave == 50) {
           plugin.getUserManager().addStat(user, plugin.getStatsStorage().getStatisticType("WINS"));
           XSound.UI_TOAST_CHALLENGE_COMPLETE.play(player, 1, 1.5f);
           for (int i = 0; i < 5; i++) {

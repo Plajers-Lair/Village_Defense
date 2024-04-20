@@ -9,6 +9,10 @@
 #     Some messages support their own placeholders
 #            like %player%, %kit% etc.
 
+# Applied in Village Defense Gold update
+Gold-Messages:
+  New-Record-Reached: "%plugin_prefix% You've reached new record on this map with kit %value%!"
+
 #
 # Color scheme
 #

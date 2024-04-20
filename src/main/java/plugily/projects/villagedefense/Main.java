@@ -19,6 +19,7 @@
 package plugily.projects.villagedefense;
 
 import fr.skytasul.glowingentities.GlowingEntities;
+import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPluginLoader;
@@ -60,6 +61,7 @@ import plugily.projects.villagedefense.kits.TerminatorKit;
 import plugily.projects.villagedefense.kits.TornadoKit;
 import plugily.projects.villagedefense.kits.WizardKit;
 import plugily.projects.villagedefense.kits.utils.KitHelper;
+import plugily.projects.villagedefense.user.VDUserManager;
 import plugily.projects.villagedefense.utils.ProtocolUtils;
 
 import java.io.File;
@@ -71,14 +73,16 @@ import java.util.logging.Level;
  */
 public class Main extends PluginMain {
 
-  private FileConfiguration entityUpgradesConfig;
-  private EnemySpawnerRegistry enemySpawnerRegistry;
+  private @Getter FileConfiguration entityUpgradesConfig;
+  private @Getter EnemySpawnerRegistry enemySpawnerRegistry;
+  private @Getter NewEntityUpgradeManager entityUpgradeManager;
+  private @Getter NewHologramManager newHologramManager;
+  private @Getter VDUserManager vdUserManager;
+  private @Getter GlowingEntities glowingEntities;
+
+  private ArgumentsRegistry argumentsRegistry;
   private ArenaRegistry arenaRegistry;
   private ArenaManager arenaManager;
-  private ArgumentsRegistry argumentsRegistry;
-  private NewEntityUpgradeManager entityUpgradeManager;
-  private NewHologramManager newHologramManager;
-  private GlowingEntities glowingEntities;
 
   @TestOnly
   public Main() {
@@ -109,7 +113,7 @@ public class Main extends PluginMain {
   }
 
   private boolean validateStartup() {
-    if(ServerVersion.Version.isCurrentLower(ServerVersion.Version.v1_12_R1)) {
+    if (ServerVersion.Version.isCurrentLower(ServerVersion.Version.v1_12_R1)) {
       MiscUtils.sendLineBreaker(this.getName());
       getMessageUtils().thisVersionIsNotSupported();
       MiscUtils.sendVersionInformation(this, this.getName(), this.getDescription());
@@ -131,6 +135,7 @@ public class Main extends PluginMain {
     ProtocolUtils.init(this);
     new ArenaEvents(this);
     new PowerupEvents(this);
+    vdUserManager = new VDUserManager(this);
     arenaManager = new ArenaManager(this);
     arenaRegistry = new ArenaRegistry(this);
     arenaRegistry.registerArenas();
@@ -156,10 +161,10 @@ public class Main extends PluginMain {
     addFileName("kits");
     Class<?>[] classKitNames = new Class[]{KnightKit.class, BuilderKit.class, TornadoKit.class, ShotBowKit.class, MedicKit.class,
       CleanerKit.class, PetsFriend.class, TerminatorKit.class, CrusaderKit.class, WizardKit.class};
-    for(Class<?> kitClass : classKitNames) {
+    for (Class<?> kitClass : classKitNames) {
       try {
         kitClass.getDeclaredConstructor().newInstance();
-      } catch(Exception e) {
+      } catch (Exception e) {
         getLogger().log(Level.SEVERE, "Fatal error while registering existing game kit! Report this error to the developer!");
         getLogger().log(Level.SEVERE, "Cause: " + e.getMessage() + " (kitClass " + kitClass.getName() + ")");
         e.printStackTrace();
@@ -171,19 +176,11 @@ public class Main extends PluginMain {
 
   private void addPluginMetrics() {
     getMetrics().addCustomChart(new Metrics.SimplePie("hooked_addons", () -> {
-      if(getServer().getPluginManager().getPlugin("VillageDefense-Enhancements") != null) {
+      if (getServer().getPluginManager().getPlugin("VillageDefense-Enhancements") != null) {
         return "Enhancements";
       }
       return "None";
     }));
-  }
-
-  public FileConfiguration getEntityUpgradesConfig() {
-    return entityUpgradesConfig;
-  }
-
-  public EnemySpawnerRegistry getEnemySpawnerRegistry() {
-    return enemySpawnerRegistry;
   }
 
   @Override
@@ -199,18 +196,6 @@ public class Main extends PluginMain {
   @Override
   public ArenaManager getArenaManager() {
     return arenaManager;
-  }
-
-  public NewEntityUpgradeManager getEntityUpgradeManager() {
-    return entityUpgradeManager;
-  }
-
-  public NewHologramManager getNewHologramManager() {
-    return newHologramManager;
-  }
-
-  public GlowingEntities getGlowingEntities() {
-    return glowingEntities;
   }
 
   @Override
