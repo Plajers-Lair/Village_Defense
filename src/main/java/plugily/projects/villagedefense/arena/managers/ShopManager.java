@@ -136,6 +136,7 @@ public class ShopManager {
         String currency = ChatColor.stripColor(new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_SHOP_CURRENCY").asKey().build());
         for(String s : ComplementAccessor.getComplement().getLore(meta)) {
           if(s.contains(currency) || s.contains("orbs")) {
+            costString = ChatColor.translateAlternateColorCodes('&', s);
             costString = ChatColor.stripColor(s).replace(currency, "").replace("orbs", "").trim();
             break;
           }
