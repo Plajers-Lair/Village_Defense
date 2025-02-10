@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,19 +47,22 @@ import plugily.projects.minigamesbox.classic.utils.version.VersionUtils;
 import plugily.projects.minigamesbox.classic.utils.version.events.api.PlugilyPlayerInteractEvent;
 import plugily.projects.minigamesbox.classic.utils.version.xseries.XMaterial;
 import plugily.projects.minigamesbox.classic.utils.version.xseries.XSound;
+import plugily.projects.villagedefense.Main;
 import plugily.projects.villagedefense.arena.Arena;
-import plugily.projects.villagedefense.creatures.CreatureUtils;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewCreatureUtils;
 import plugily.projects.villagedefense.kits.ability.AbilitySource;
 import plugily.projects.villagedefense.kits.utils.KitHelper;
 import plugily.projects.villagedefense.kits.utils.KitSpecifications;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 /**
  * Created by Tom on 18/08/2014.
  */
-public class CleanerKit extends PremiumKit implements Listener, AbilitySource {
+public class CleanerKit extends PremiumKit implements Listener, AbilitySource, ChatDisplayable, ScoreboardModifiable {
 
   private static final String LANGUAGE_ACCESSOR = "KIT_CONTENT_CLEANER_";
   //this metadata must be given to every enemy killed by poplust to avoid recursive calls and stack overflow in the listener
@@ -75,6 +78,13 @@ public class CleanerKit extends PremiumKit implements Listener, AbilitySource {
     getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     getPlugin().getKitRegistry().registerKit(this);
     schedulePopAwe();
+    ((Main) getPlugin()).getKitsMenu().registerKit(KitsMenu.KitCategory.DAMAGE_DEALER, this);
+  }
+
+  @Override
+  @SuppressWarnings("UnnecessaryUnicodeEscape")
+  public String getChatPrefix() {
+    return "\u0042";
   }
 
   private void registerMessages() {
@@ -112,6 +122,11 @@ public class CleanerKit extends PremiumKit implements Listener, AbilitySource {
   private void executeRandomPops(Arena arena, Player player, int amount) {
     for(int i = 0; i < amount; i++) {
       Creature enemy = arena.getEnemies().get(random.nextInt(arena.getEnemies().size()));
+      if (enemy.hasMetadata("VD_UNPOPPABLE")) {
+        KitHelper.maxHealthPercentDamage(enemy, player, 15.0);
+        VersionUtils.sendParticles("LAVA", arena.getPlayers(), enemy.getLocation(), 20);
+        continue;
+      }
       if(KitHelper.executeEnemy(enemy, player)) {
         VersionUtils.sendParticles("LAVA", arena.getPlayers(), enemy.getLocation(), 20);
       }
@@ -122,6 +137,29 @@ public class CleanerKit extends PremiumKit implements Listener, AbilitySource {
   @Override
   public boolean isUnlockedByPlayer(Player player) {
     return getPlugin().getPermissionsManager().hasPermissionString("KIT_PREMIUM_UNLOCK", player) || player.hasPermission("villagedefense.kit.cleaner");
+  }
+
+  @Override
+  public List<String> getScoreboardLines(User user) {
+    Arena arena = (Arena) user.getArena();
+    int wave = arena.getWave();
+    List<String> lines = new ArrayList<>(
+      Arrays.asList(
+        "",
+        "&fVillagers: &a" + arena.getVillagers().size(),
+        "&fZombies: &a" + arena.getEnemies().size(),
+        "&fOrbs: &a" + user.getStatistic("orbs"),
+        "",
+        "&e&lABILITIES:",
+        ScoreboardModifiable.renderAbilityCooldown(user, "cleaner_cleansing", "Cleansing Wand", wave, KitSpecifications.GameTimeState.EARLY),
+        ScoreboardModifiable.renderAbilityCooldown(user, "cleaner_poplust", "Poplust", wave, KitSpecifications.GameTimeState.MID),
+        ""
+      )
+    );
+    if (!arena.isFighting()) {
+      lines.add(1, "&fNext Wave in &a" + arena.getTimer() + "s");
+    }
+    return lines;
   }
 
   @Override
@@ -187,11 +225,11 @@ public class CleanerKit extends PremiumKit implements Listener, AbilitySource {
     new MessageBuilder(LANGUAGE_ACCESSOR + "GAME_ITEM_CLEANSING_STICK_ACTIVATE").asKey().send(user.getPlayer());
     int popsPerCycle = 5;
     int splitAmount = (int) Settings.CLEANSING_POP_COUNT.getForArenaState((Arena) user.getArena()) / popsPerCycle;
-    for(int i = 0; i < splitAmount; i++) {
+    for (int i = 1; i < splitAmount + 1; i++) {
       Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
         XSound.BLOCK_LAVA_POP.play(user.getPlayer());
         executeRandomPops((Arena) user.getArena(), user.getPlayer(), popsPerCycle);
-      }, 10L * splitAmount);
+      }, 10L * splitAmount * i);
     }
   }
 
@@ -268,13 +306,19 @@ public class CleanerKit extends PremiumKit implements Listener, AbilitySource {
       return;
     }
     User user = getPlugin().getUserManager().getUser(damager);
-    if (!damager.hasMetadata("VD_CLEANER_POPLUST") || user.isSpectator() || !CreatureUtils.isEnemy(event.getEntity())
+    if (!damager.hasMetadata("VD_CLEANER_POPLUST") || user.isSpectator() || !NewCreatureUtils.isEnemy(event.getEntity())
       || event.getEntity().hasMetadata(KILL_METADATA)) {
       return;
     }
     LivingEntity entity = (LivingEntity) event.getEntity();
     Arena arena = ((Arena) user.getArena());
     arena.getAssistHandler().doRegisterBuffOnAlly(damager, user.getPlayer());
+    if (entity.hasMetadata("VD_UNPOPPABLE")) {
+      KitHelper.maxHealthPercentDamage(entity, user.getPlayer(), 15.0);
+      XSound.BLOCK_LAVA_POP.play(user.getPlayer());
+      VersionUtils.sendParticles("LAVA", user.getArena().getPlayers(), entity.getLocation(), 15);
+      return;
+    }
     if (KitHelper.canExecuteEnemy(entity, user.getPlayer())) {
       entity.setMetadata(KILL_METADATA, new FixedMetadataValue(getPlugin(), true));
       KitHelper.executeEnemy(entity, user.getPlayer());
@@ -284,7 +328,7 @@ public class CleanerKit extends PremiumKit implements Listener, AbilitySource {
   }
 
   private enum Settings {
-    PASSIVE_POP_COUNT(1, 2, 3), CLEANSING_POP_COUNT(10, 15, 20), POPLUST_CAST_TIME(0, 7, 11);
+    PASSIVE_POP_COUNT(1, 2, 3), CLEANSING_POP_COUNT(8, 11, 14), POPLUST_CAST_TIME(0, 7, 11);
 
     private final double earlyValue;
     private final double midValue;

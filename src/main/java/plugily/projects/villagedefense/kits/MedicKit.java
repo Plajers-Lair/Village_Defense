@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -44,7 +45,6 @@ import plugily.projects.minigamesbox.classic.kits.basekits.PremiumKit;
 import plugily.projects.minigamesbox.classic.user.User;
 import plugily.projects.minigamesbox.classic.utils.helper.ArmorHelper;
 import plugily.projects.minigamesbox.classic.utils.helper.ItemBuilder;
-import plugily.projects.minigamesbox.classic.utils.helper.WeaponHelper;
 import plugily.projects.minigamesbox.classic.utils.misc.complement.ComplementAccessor;
 import plugily.projects.minigamesbox.classic.utils.version.ServerVersion;
 import plugily.projects.minigamesbox.classic.utils.version.VersionUtils;
@@ -52,20 +52,23 @@ import plugily.projects.minigamesbox.classic.utils.version.events.api.PlugilyPla
 import plugily.projects.minigamesbox.classic.utils.version.xseries.ParticleDisplay;
 import plugily.projects.minigamesbox.classic.utils.version.xseries.XMaterial;
 import plugily.projects.minigamesbox.classic.utils.version.xseries.XParticle;
+import plugily.projects.villagedefense.Main;
 import plugily.projects.villagedefense.arena.Arena;
 import plugily.projects.villagedefense.arena.ArenaUtils;
-import plugily.projects.villagedefense.creatures.CreatureUtils;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewCreatureUtils;
 import plugily.projects.villagedefense.kits.ability.AbilitySource;
 import plugily.projects.villagedefense.kits.utils.KitHelper;
 import plugily.projects.villagedefense.kits.utils.KitSpecifications;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Created by Tom on 1/12/2015.
  */
-public class MedicKit extends PremiumKit implements Listener, AbilitySource {
+public class MedicKit extends PremiumKit implements Listener, AbilitySource, ChatDisplayable, ScoreboardModifiable {
 
   private static final String LANGUAGE_ACCESSOR = "KIT_CONTENT_MEDIC_";
 
@@ -77,6 +80,13 @@ public class MedicKit extends PremiumKit implements Listener, AbilitySource {
     setDescription(description);
     getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     getPlugin().getKitRegistry().registerKit(this);
+    ((Main) getPlugin()).getKitsMenu().registerKit(KitsMenu.KitCategory.SUPPORT, this);
+  }
+
+  @Override
+  @SuppressWarnings("UnnecessaryUnicodeEscape")
+  public String getChatPrefix() {
+    return "\u0044";
   }
 
   private void registerMessages() {
@@ -100,8 +110,36 @@ public class MedicKit extends PremiumKit implements Listener, AbilitySource {
   }
 
   @Override
+  public List<String> getScoreboardLines(User user) {
+    Arena arena = (Arena) user.getArena();
+    int wave = arena.getWave();
+    List<String> lines = new ArrayList<>(
+      Arrays.asList(
+        "",
+        "&fVillagers: &a" + arena.getVillagers().size(),
+        "&fZombies: &a" + arena.getEnemies().size(),
+        "&fOrbs: &a" + user.getStatistic("orbs"),
+        "",
+        "&e&lABILITIES:",
+        ScoreboardModifiable.renderAbilityCooldown(user, "medic_aura", "Healing Aura", wave, KitSpecifications.GameTimeState.MID),
+        ScoreboardModifiable.renderAbilityCooldown(user, "medic_homecoming", "Homecoming", wave, KitSpecifications.GameTimeState.MID),
+        ""
+      )
+    );
+    if (!arena.isFighting()) {
+      lines.add(1, "&fNext Wave in &a" + arena.getTimer() + "s");
+    }
+    return lines;
+  }
+
+  @Override
   public void giveKitItems(Player player) {
-    player.getInventory().addItem(WeaponHelper.getUnBreakingSword(WeaponHelper.ResourceType.STONE, 10));
+    ItemStack itemStack = XMaterial.STONE_SWORD.parseItem();
+    ItemMeta meta = itemStack.getItemMeta();
+    meta.setUnbreakable(true);
+    itemStack.setItemMeta(meta);
+    player.getInventory().addItem(itemStack);
+
     ArmorHelper.setColouredArmor(Color.WHITE, player);
     player.getInventory().addItem(new ItemStack(XMaterial.COOKED_PORKCHOP.parseMaterial(), 8));
     player.getInventory().addItem(VersionUtils.getPotion(PotionType.REGEN, 1, true));
@@ -139,7 +177,7 @@ public class MedicKit extends PremiumKit implements Listener, AbilitySource {
     }
     for(Villager villager : arena.getVillagers()) {
       villager.setHealth(Math.min(villager.getHealth() + heal, VersionUtils.getMaxHealth(villager)));
-      villager.setCustomName(CreatureUtils.getHealthNameTag(villager));
+      villager.setCustomName(NewCreatureUtils.getHealthNameTag(villager));
     }
     if(arena.getWave() == KitSpecifications.GameTimeState.MID.getStartWave()) {
       new MessageBuilder("KIT_ABILITY_UNLOCKED").asKey().value(new MessageBuilder(LANGUAGE_ACCESSOR + "GAME_ITEM_AURA_NAME").asKey().build()).send(player);

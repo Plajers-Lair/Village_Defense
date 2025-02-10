@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +28,8 @@ import plugily.projects.minigamesbox.classic.handlers.language.MessageBuilder;
 import plugily.projects.minigamesbox.classic.utils.hologram.ArmorStandHologram;
 import plugily.projects.villagedefense.Main;
 import plugily.projects.villagedefense.arena.Arena;
-import plugily.projects.villagedefense.arena.managers.ShopManager;
-import plugily.projects.villagedefense.creatures.v1_9_UP.CustomCreature;
+import plugily.projects.villagedefense.arena.managers.shop.ShopManager;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewEnemySpawnerManager;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -74,7 +74,7 @@ public class ShopOfferEvent implements MidWaveEvent {
     target.setMetadata(ShopManager.SHOP_OFFER_METADATA, new FixedMetadataValue(plugin, true));
     new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_VILLAGER_OFFERING_SALE")
       .asKey()
-      .value(target.getMetadata(CustomCreature.CREATURE_CUSTOM_NAME_METADATA).get(0).asString())
+      .value(target.getMetadata(NewEnemySpawnerManager.CREATURE_CUSTOM_NAME_METADATA).get(0).asString())
       .arena(arena)
       .sendArena();
     for (Player player : arena.getPlayers()) {

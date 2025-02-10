@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,8 +39,8 @@ import plugily.projects.minigamesbox.classic.utils.hologram.ArmorStandHologram;
 import plugily.projects.minigamesbox.classic.utils.version.VersionUtils;
 import plugily.projects.villagedefense.Main;
 import plugily.projects.villagedefense.arena.Arena;
-import plugily.projects.villagedefense.creatures.CreatureUtils;
-import plugily.projects.villagedefense.creatures.v1_9_UP.CustomCreature;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewCreatureUtils;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewEnemySpawnerManager;
 
 import java.util.Map;
 
@@ -62,12 +62,17 @@ public class RottenOfferEvent implements MidWaveEvent, Listener {
   @Override
   public void initiate(Arena arena) {
     LivingEntity target = (LivingEntity) arena.getStartLocation().getWorld().spawnEntity(arena.getStartLocation(), EntityType.WANDERING_TRADER);
-    String name = CreatureUtils.getRandomVillagerName();
+    String name = NewCreatureUtils.getRandomVillagerName();
     target.setCustomName(name);
     target.setCustomNameVisible(true);
-    target.setMetadata(CustomCreature.CREATURE_CUSTOM_NAME_METADATA, new FixedMetadataValue(plugin, name));
+    target.setMetadata(NewEnemySpawnerManager.CREATURE_CUSTOM_NAME_METADATA, new FixedMetadataValue(plugin, name));
     target.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(1.0);
-    target.setGlowing(true);
+    for (Player player : arena.getPlayers()) {
+      try {
+        plugin.getGlowingEntities().setGlowing(target, player, ChatColor.BLUE);
+      } catch (ReflectiveOperationException ignored) {
+      }
+    }
 
     String offerMessage = new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_VILLAGER_ROTTEN_OFFER").asKey().build();
     ArmorStandHologram hologram = new ArmorStandHologram(target.getLocation().add(0, 0.25, 0), offerMessage);

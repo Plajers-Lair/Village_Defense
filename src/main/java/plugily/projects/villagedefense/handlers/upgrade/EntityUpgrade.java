@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@ public class EntityUpgrade {
   private int slot;
   private int cost;
   private EntityType applicableEntity;
-  private boolean special = false;
   private boolean hidden = false;
   private int surviveWaves = -1;
   private String dependsOn;
@@ -93,14 +92,6 @@ public class EntityUpgrade {
 
   public void setApplicableEntity(EntityType applicableEntity) {
     this.applicableEntity = applicableEntity;
-  }
-
-  public boolean isSpecial() {
-    return special;
-  }
-
-  public void setSpecial(boolean special) {
-    this.special = special;
   }
 
   public boolean isHidden() {
@@ -167,11 +158,6 @@ public class EntityUpgrade {
 
     public Builder withApplicableEntity(EntityType applicableEntity) {
       upgrade.setApplicableEntity(applicableEntity);
-      return this;
-    }
-
-    public Builder isSpecial() {
-      upgrade.setSpecial(true);
       return this;
     }
 

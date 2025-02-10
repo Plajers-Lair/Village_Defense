@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.data.type.Door;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -33,6 +35,7 @@ import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -40,6 +43,7 @@ import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffectType;
@@ -54,12 +58,12 @@ import plugily.projects.minigamesbox.classic.utils.version.VersionUtils;
 import plugily.projects.minigamesbox.classic.utils.version.events.api.PlugilyEntityPickupItemEvent;
 import plugily.projects.minigamesbox.classic.utils.version.xseries.XSound;
 import plugily.projects.villagedefense.Main;
-import plugily.projects.villagedefense.creatures.CreatureUtils;
-import plugily.projects.villagedefense.handlers.upgrade.EntityUpgrade;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewCreatureUtils;
+import plugily.projects.villagedefense.arena.villager.VillagerAiManager;
+import plugily.projects.villagedefense.utils.NearbyUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author Plajer
@@ -77,6 +81,65 @@ public class ArenaEvents extends PluginArenaEvents {
   }
 
   @EventHandler
+  public void onBraveTraitRetreat(EntityDamageByEntityEvent event) {
+    if (!(event.getEntity() instanceof Villager villager)) {
+      return;
+    }
+    for (Arena arena : plugin.getArenaRegistry().getPluginArenas()) {
+      if (!arena.getVillagers().contains(villager)) {
+        continue;
+      }
+      VillagerAiManager aiManager = arena.getVillagerAiManager();
+      double healthPercent = villager.getHealth() / villager.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue();
+      if (healthPercent <= 0.5) {
+        villager.setMetadata("VD_BRAVE_RETREAT", new FixedMetadataValue(plugin, true));
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+          int homeIndex = villager.getMetadata(VillagerAiManager.VILLAGER_PERSONALITY_CHOSEN_HOME_ID).get(0).asInt();
+          Location home = NearbyUtils.getRandomNearbyLocation(aiManager.getPlaces().get(VillagerAiManager.Place.VILLAGER_HOME_ZONE).get(homeIndex), 2);
+          aiManager.doStartPathfinder(villager, home, (v, l) -> {
+          });
+          Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            villager.removeMetadata("VD_BRAVE_RETREAT", plugin);
+          }, 20 * 10);
+        }, 20);
+      }
+    }
+  }
+
+  @EventHandler
+  public void onDoorLockPhysicsBlock(BlockPhysicsEvent event) {
+    if (!(event.getChangedBlockData() instanceof Door door)) {
+      return;
+    }
+    if (!door.isOpen() && event.getSourceBlock().hasMetadata("VD_DOOR_LOCK")) {
+      event.setCancelled(true);
+    }
+  }
+
+  @EventHandler
+  public void onCrammingSuffocationDamage(EntityDamageEvent event) {
+    if (event.getCause() != EntityDamageEvent.DamageCause.CRAMMING && event.getCause() != EntityDamageEvent.DamageCause.SUFFOCATION) {
+      return;
+    }
+    if (event.getEntity().hasMetadata("VD_CUSTOM_ENTITY")) {
+      event.setCancelled(true);
+    }
+  }
+
+  @EventHandler
+  public void onArrowDecay(ProjectileHitEvent event) {
+    if (!(event.getEntity() instanceof Arrow arrow)) {
+      return;
+    }
+    if (!(arrow.getShooter() instanceof Player player)) {
+      return;
+    }
+    if (plugin.getArenaRegistry().isInArena(player)) {
+      Bukkit.getScheduler().runTaskLater(plugin, () -> event.getEntity().remove(), 20 * 4);
+    }
+  }
+
+  @EventHandler
   public void onWolfTeleport(EntityTeleportEvent event) {
     if (!(event.getEntity() instanceof Wolf wolf)) {
       return;
@@ -89,6 +152,16 @@ public class ArenaEvents extends PluginArenaEvents {
     }
     //is a VD entity, cancel no matter what, unless overridden
     event.setCancelled(true);
+  }
+
+  @EventHandler
+  public void onDeadTargetAdjust(EntityTargetLivingEntityEvent event) {
+    if (event.getTarget() == null) {
+      return;
+    }
+    if (event.getTarget().hasMetadata("VD_PET_DEAD")) {
+      event.setCancelled(true);
+    }
   }
 
   @EventHandler
@@ -156,7 +229,7 @@ public class ArenaEvents extends PluginArenaEvents {
     for (Arena arena : plugin.getArenaRegistry().getPluginArenas()) {
       if (arena.getVillagers().contains(e.getEntity()) && arena.getEnemies().contains(e.getDamager())) {
         e.setCancelled(false);
-        e.getEntity().setCustomName(CreatureUtils.getHealthNameTagPreDamage((Creature) e.getEntity(), e.getFinalDamage()));
+        e.getEntity().setCustomName(NewCreatureUtils.getHealthNameTagPreDamage((Creature) e.getEntity(), e.getFinalDamage()));
         XSound.ENTITY_VILLAGER_HURT.play(e.getEntity().getLocation(), 10.0f, 1.0f);
 
         doApplyDamageGlowingWarning(e.getDamager(), arena);
@@ -216,7 +289,7 @@ public class ArenaEvents extends PluginArenaEvents {
 
             if (plugin.getArenaRegistry().getArena(player) != null) {
               plugin.getUserManager().addStat(player, plugin.getStatsStorage().getStatisticType("KILLS"));
-              plugin.getUserManager().addExperience(player, 2 * arena.getArenaOption("ZOMBIE_DIFFICULTY_MULTIPLIER"));
+              plugin.getUserManager().addExperience(player, (int) (2 * Math.log(arena.getWave())));
             }
           }
 
@@ -244,87 +317,6 @@ public class ArenaEvents extends PluginArenaEvents {
       }
 
       arena.addDroppedFlesh(item);
-    }
-  }
-
-  @EventHandler
-  public void onEntityDamage(EntityDamageEvent event) {
-    if (event.getEntityType() != EntityType.IRON_GOLEM && event.getEntityType() != EntityType.WOLF)
-      return;
-
-    for (Arena arena : plugin.getArenaRegistry().getPluginArenas()) {
-      switch (event.getEntityType()) {
-        case IRON_GOLEM:
-          if (!arena.getIronGolems().contains(event.getEntity())) {
-            continue;
-          }
-          IronGolem ironGolem = (IronGolem) event.getEntity();
-          if (ironGolem.getHealth() <= event.getDamage()) {
-            event.setCancelled(true);
-            event.setDamage(0);
-
-            int totalLevel = 0;
-            for (EntityUpgrade entityUpgrade : plugin.getEntityUpgradeManager().getRegisteredUpgrades()) {
-              if (entityUpgrade.getApplicableEntity() == ironGolem.getType() && ironGolem.hasMetadata(entityUpgrade.getMetadataKey())) {
-                totalLevel++;
-              }
-            }
-            UUID ownerUUID = null;
-            if (ironGolem.hasMetadata("VD_OWNER_UUID")) {
-              ownerUUID = UUID.fromString(ironGolem.getMetadata("VD_OWNER_UUID").get(0).asString());
-            }
-
-            if (ownerUUID != null) {
-              Player playerOwner = plugin.getServer().getPlayer(ownerUUID);
-
-              int totalKills = 0;
-              if (ironGolem.hasMetadata("VD_ENTITY_KILLS")) {
-                totalKills = ironGolem.getMetadata("VD_ENTITY_KILLS").get(0).asInt();
-              }
-              if (playerOwner != null)
-                new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_GOLEM_DEATH").asKey().integer(totalLevel).value(String.valueOf(totalKills)).player(playerOwner).sendPlayer();
-            }
-
-            arena.removeIronGolem(ironGolem);
-          }
-          return;
-        case WOLF:
-          if (!arena.getWolves().contains(event.getEntity())) {
-            continue;
-          }
-          Wolf wolf = (Wolf) event.getEntity();
-          if (wolf.getHealth() <= event.getDamage()) {
-            event.setCancelled(true);
-            event.setDamage(0);
-
-            int totalLevel = 0;
-            for (EntityUpgrade entityUpgrade : plugin.getEntityUpgradeManager().getRegisteredUpgrades()) {
-              if (entityUpgrade.getApplicableEntity() == wolf.getType() && wolf.hasMetadata(entityUpgrade.getMetadataKey())) {
-                totalLevel++;
-              }
-            }
-            UUID ownerUUID = (wolf.getOwner() != null) ? wolf.getOwner().getUniqueId() : null;
-            if (ownerUUID == null && wolf.hasMetadata("VD_OWNER_UUID")) {
-              ownerUUID = UUID.fromString(wolf.getMetadata("VD_OWNER_UUID").get(0).asString());
-            }
-
-            if (ownerUUID != null) {
-              Player playerOwner = plugin.getServer().getPlayer(ownerUUID);
-              int totalKills = 0;
-              if (wolf.hasMetadata("VD_ENTITY_KILLS")) {
-                totalKills = wolf.getMetadata("VD_ENTITY_KILLS").get(0).asInt();
-              }
-
-              if (playerOwner != null)
-                new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_WOLF_DEATH").asKey().integer(totalLevel).value(String.valueOf(totalKills)).player(playerOwner).sendPlayer();
-            }
-
-            arena.removeWolf(wolf);
-          }
-          return;
-        default:
-          return;
-      }
     }
   }
 
@@ -388,7 +380,8 @@ public class ArenaEvents extends PluginArenaEvents {
       user.setSpectator(true);
       player.setGameMode(GameMode.SURVIVAL);
 
-      modifyUserOrbs(user);
+      //VD Gold - lose only 40% of orbs on death
+      user.setStatistic("ORBS", (int) (user.getStatistic("ORBS") * 0.6));
 
       ArenaUtils.hidePlayer(player, arena);
       player.setAllowFlight(true);
@@ -400,7 +393,7 @@ public class ArenaEvents extends PluginArenaEvents {
 
       plugin.getSpecialItemManager().addSpecialItemsOfStage(player, SpecialItem.DisplayStage.SPECTATOR);
 
-      arena.getCreatureTargetManager().unTargetPlayerFromZombies(player, arena);
+      NewCreatureUtils.unTargetPlayerFromZombies(player, arena);
     });
   }
 
@@ -438,38 +431,8 @@ public class ArenaEvents extends PluginArenaEvents {
       player.setGameMode(GameMode.SURVIVAL);
       player.removePotionEffect(PotionEffectType.NIGHT_VISION);
       player.removePotionEffect(PotionEffectType.SPEED);
-
-      modifyUserOrbs(user);
     }
     e.setRespawnLocation(arena.getStartLocation());
-  }
-
-  private void modifyUserOrbs(User user) {
-    int deathValue = plugin.getConfig().getInt("Orbs.Death.Value", 50);
-    int current = user.getStatistic("ORBS");
-    switch (getOrbDeathType()) {
-      case KEEP:
-        return;
-      case AMOUNT:
-        user.setStatistic("ORBS", (Math.max(current + deathValue, 0)));
-        break;
-      case SET:
-        user.setStatistic("ORBS", deathValue);
-        break;
-      case PERCENTAGE:
-        user.setStatistic("ORBS", current * (deathValue / 100));
-        break;
-      default:
-        break;
-    }
-  }
-
-  private OrbDeathType getOrbDeathType() {
-    return OrbDeathType.valueOf(plugin.getConfig().getString("Orbs.Death.Type", "KEEP"));
-  }
-
-  private enum OrbDeathType {
-    PERCENTAGE, AMOUNT, SET, KEEP
   }
 
   @EventHandler

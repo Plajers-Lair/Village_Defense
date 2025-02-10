@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -40,18 +41,20 @@ import plugily.projects.minigamesbox.classic.kits.basekits.PremiumKit;
 import plugily.projects.minigamesbox.classic.user.User;
 import plugily.projects.minigamesbox.classic.utils.helper.ArmorHelper;
 import plugily.projects.minigamesbox.classic.utils.helper.ItemBuilder;
-import plugily.projects.minigamesbox.classic.utils.helper.WeaponHelper;
 import plugily.projects.minigamesbox.classic.utils.misc.complement.ComplementAccessor;
 import plugily.projects.minigamesbox.classic.utils.version.VersionUtils;
 import plugily.projects.minigamesbox.classic.utils.version.events.api.PlugilyPlayerInteractEvent;
 import plugily.projects.minigamesbox.classic.utils.version.xseries.XMaterial;
 import plugily.projects.minigamesbox.classic.utils.version.xseries.XSound;
+import plugily.projects.villagedefense.Main;
 import plugily.projects.villagedefense.arena.Arena;
-import plugily.projects.villagedefense.creatures.CreatureUtils;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewCreatureUtils;
 import plugily.projects.villagedefense.kits.ability.AbilitySource;
 import plugily.projects.villagedefense.kits.utils.KitHelper;
 import plugily.projects.villagedefense.kits.utils.KitSpecifications;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -61,7 +64,7 @@ import java.util.stream.Collectors;
  * <p>
  * Created at 30.08.2023
  */
-public class ShotBowKit extends PremiumKit implements AbilitySource, Listener {
+public class ShotBowKit extends PremiumKit implements AbilitySource, Listener, ChatDisplayable, ScoreboardModifiable {
 
   private static final String LANGUAGE_ACCESSOR = "KIT_CONTENT_SHOT_BOW_";
   private static final String ARROW_RAIN_KNOCK_METADATA = "VD_SHOTBOW_KNOCKBACK";
@@ -75,6 +78,13 @@ public class ShotBowKit extends PremiumKit implements AbilitySource, Listener {
     setDescription(description);
     getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     getPlugin().getKitRegistry().registerKit(this);
+    ((Main) getPlugin()).getKitsMenu().registerKit(KitsMenu.KitCategory.DAMAGE_DEALER, this);
+  }
+
+  @Override
+  @SuppressWarnings("UnnecessaryUnicodeEscape")
+  public String getChatPrefix() {
+    return "\u0046";
   }
 
   private void registerMessages() {
@@ -92,8 +102,35 @@ public class ShotBowKit extends PremiumKit implements AbilitySource, Listener {
   }
 
   @Override
+  public List<String> getScoreboardLines(User user) {
+    Arena arena = (Arena) user.getArena();
+    int wave = arena.getWave();
+    List<String> lines = new ArrayList<>(
+      Arrays.asList(
+        "",
+        "&fVillagers: &a" + arena.getVillagers().size(),
+        "&fZombies: &a" + arena.getEnemies().size(),
+        "&fOrbs: &a" + user.getStatistic("orbs"),
+        "",
+        "&e&lABILITIES:",
+        ScoreboardModifiable.renderAbilityCooldown(user, "shotbow_arrowrain", "Arrow Rain", wave, KitSpecifications.GameTimeState.MID),
+        ""
+      )
+    );
+    if (!arena.isFighting()) {
+      lines.add(1, "&fNext Wave in &a" + arena.getTimer() + "s");
+    }
+    return lines;
+  }
+
+  @Override
   public void giveKitItems(Player player) {
-    player.getInventory().addItem(WeaponHelper.getEnchantedBow(new Enchantment[]{Enchantment.DURABILITY, Enchantment.ARROW_KNOCKBACK, Enchantment.ARROW_INFINITE}, new int[]{10, 1, 1}));
+    ItemStack bow = new ItemStack(Material.BOW);
+    ItemMeta meta = bow.getItemMeta();
+    meta.setUnbreakable(true);
+    meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+    bow.setItemMeta(meta);
+    player.getInventory().addItem(bow);
     player.getInventory().setItem(9, new ItemStack(getMaterial(), 1));
     ArmorHelper.setColouredArmor(Color.YELLOW, player);
     player.getInventory().setItem(4, new ItemBuilder(new ItemStack(XMaterial.STICK.parseMaterial()))
@@ -157,7 +194,7 @@ public class ShotBowKit extends PremiumKit implements AbilitySource, Listener {
 
   @EventHandler
   public void onArrowDamage(EntityDamageByEntityEvent event) {
-    if(!(event.getDamager() instanceof Arrow) || !CreatureUtils.isEnemy(event.getEntity())) {
+    if (!(event.getDamager() instanceof Arrow) || !NewCreatureUtils.isEnemy(event.getEntity())) {
       return;
     }
     Arrow arrow = (Arrow) event.getDamager();
@@ -200,26 +237,25 @@ public class ShotBowKit extends PremiumKit implements AbilitySource, Listener {
         List<Entity> enemies = target.getNearbyEntities(1.5, 1.5, 1.5)
           .stream()
           .filter(e -> !target.equals(e))
-          .filter(CreatureUtils::isEnemy)
+          .filter(NewCreatureUtils::isEnemy)
           .collect(Collectors.toList());
         for(Entity entity : enemies) {
-          if(!CreatureUtils.isEnemy(entity)) {
-            continue;
-          }
           KitHelper.maxHealthPercentDamage((LivingEntity) entity, source, 10.0);
         }
         break;
       }
       case 2:
         //slowness
-        target.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20 * 10, 1));
+        if (!target.hasMetadata("VD_UNSTUNNABLE")) {
+          target.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20 * 10, 1));
+        }
         break;
       case 3: {
         //shared combust
         List<LivingEntity> enemies = target.getNearbyEntities(1.5, 1.5, 1.5)
           .stream()
           .filter(e -> !target.equals(e))
-          .filter(CreatureUtils::isEnemy)
+          .filter(NewCreatureUtils::isEnemy)
           .map(e -> (LivingEntity) e)
           .collect(Collectors.toList());
         for(LivingEntity enemy : enemies) {

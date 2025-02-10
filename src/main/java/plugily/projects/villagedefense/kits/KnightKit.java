@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * Created by Tom on 14/08/2014.
  */
-public class KnightKit extends FreeKit {
+public class KnightKit extends FreeKit implements ChatDisplayable {
 
   public KnightKit() {
     setName(new MessageBuilder("KIT_CONTENT_KNIGHT_NAME").asKey().build());
@@ -41,6 +41,11 @@ public class KnightKit extends FreeKit {
     setDescription(description);
     getPlugin().getKitRegistry().registerKit(this);
     getPlugin().getKitRegistry().setDefaultKit(this);
+  }
+
+  @Override
+  public String getChatPrefix() {
+    return "";
   }
 
   @Override

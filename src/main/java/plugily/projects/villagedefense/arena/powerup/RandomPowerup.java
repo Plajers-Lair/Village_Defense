@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ package plugily.projects.villagedefense.arena.powerup;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
@@ -35,7 +36,7 @@ import plugily.projects.minigamesbox.classic.utils.version.xseries.XParticle;
 import plugily.projects.minigamesbox.classic.utils.version.xseries.XSound;
 import plugily.projects.villagedefense.Main;
 import plugily.projects.villagedefense.arena.Arena;
-import plugily.projects.villagedefense.creatures.CreatureUtils;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewCreatureUtils;
 import plugily.projects.villagedefense.handlers.hologram.ArmorStandHologram;
 
 import java.util.ArrayList;
@@ -63,9 +64,8 @@ public class RandomPowerup implements Powerup {
         for (Player target : arena.getPlayersLeft()) {
           target.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20 * 5, 0));
           target.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 20 * 5, 0));
-          if (!target.equals(player)) {
-            player.sendMessage(powerupMessage.replace("%name%", color("&e&lREJUVENATION")).replace("%player%", player.getName()));
-          }
+          player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 1.25f);
+          player.sendMessage(powerupMessage.replace("%name%", color("&e&lREJUVENATION")).replace("%player%", player.getName()));
         }
         List<LivingEntity> pets = new ArrayList<>();
         pets.addAll(arena.getWolves());
@@ -82,9 +82,8 @@ public class RandomPowerup implements Powerup {
       (arena, player) -> {
         for (Player target : arena.getPlayersLeft()) {
           target.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 5, 0));
-          if (!target.equals(player)) {
-            player.sendMessage(powerupMessage.replace("%name%", color("&b&lSWIFTNESS")).replace("%player%", player.getName()));
-          }
+          player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 1.25f);
+          player.sendMessage(powerupMessage.replace("%name%", color("&b&lSWIFTNESS")).replace("%player%", player.getName()));
         }
         List<LivingEntity> pets = new ArrayList<>();
         pets.addAll(arena.getWolves());
@@ -100,7 +99,7 @@ public class RandomPowerup implements Powerup {
       color("&7Alive enemies are frozen in time for 3 seconds!"),
       (arena, player) -> {
         for (Creature creature : arena.getEnemies()) {
-          CreatureUtils.doStunEnemy(creature, 3);
+          NewCreatureUtils.doStunEnemy(creature, 3);
         }
       }
     ));
@@ -109,7 +108,9 @@ public class RandomPowerup implements Powerup {
       color("&7You won jackpot prize of 300 orbs!"),
       (arena, player) -> {
         int orbs = 300;
+        player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 1.25f);
         plugin.getUserManager().getUser(player).adjustStatistic(plugin.getStatsStorage().getStatisticType("ORBS"), orbs);
+        player.sendMessage(powerupMessage.replace("%name%", color("&6&lJACKPOT")).replace("%player%", player.getName()));
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a+" + orbs + " &7orbs"));
       }
     ));
@@ -118,9 +119,12 @@ public class RandomPowerup implements Powerup {
       color("&f&lDIVINE BARRIER"),
       color("&7Villagers are protected from damage for 10s!"),
       (arena, player) -> {
+        String villagerPowerupMessage = color("&7Villagers received %name%&7 powerup from %player%!");
         for (Villager villager : arena.getVillagers()) {
           villager.setNoDamageTicks(20 * 10);
           for (Player target : arena.getPlayers()) {
+            player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 1.25f);
+            player.sendMessage(villagerPowerupMessage.replace("%name%", color("&f&lDIVINE BARRIER")).replace("%player%", player.getName()));
             try {
               plugin.getGlowingEntities().setGlowing(villager, target, ChatColor.YELLOW);
             } catch (ReflectiveOperationException ignored) {

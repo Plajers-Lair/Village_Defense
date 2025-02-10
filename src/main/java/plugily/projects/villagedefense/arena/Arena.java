@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
 
 package plugily.projects.villagedefense.arena;
 
-import org.bukkit.DyeColor;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -36,27 +36,27 @@ import org.jetbrains.annotations.Nullable;
 import plugily.projects.minigamesbox.classic.arena.ArenaState;
 import plugily.projects.minigamesbox.classic.arena.PluginArena;
 import plugily.projects.minigamesbox.classic.handlers.language.MessageBuilder;
-import plugily.projects.minigamesbox.classic.utils.misc.MiscUtils;
 import plugily.projects.villagedefense.Main;
 import plugily.projects.villagedefense.arena.assist.AssistHandler;
-import plugily.projects.villagedefense.arena.managers.CreatureTargetManager;
-import plugily.projects.villagedefense.arena.managers.EnemySpawnManager;
 import plugily.projects.villagedefense.arena.managers.ScoreboardManager;
-import plugily.projects.villagedefense.arena.managers.ShopManager;
 import plugily.projects.villagedefense.arena.managers.maprestorer.MapRestorerManager;
+import plugily.projects.villagedefense.arena.managers.shop.ShopManager;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewCreatureUtils;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewEnemySpawnerManager;
 import plugily.projects.villagedefense.arena.midwave.MidWaveEvent;
 import plugily.projects.villagedefense.arena.states.EndingState;
 import plugily.projects.villagedefense.arena.states.InGameState;
 import plugily.projects.villagedefense.arena.states.RestartingState;
 import plugily.projects.villagedefense.arena.states.StartingState;
-import plugily.projects.villagedefense.creatures.CreatureUtils;
-import plugily.projects.villagedefense.creatures.v1_9_UP.CustomCreature;
+import plugily.projects.villagedefense.arena.villager.VillagerAiManager;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -77,13 +77,15 @@ public class Arena extends PluginArena {
   private final List<Item> droppedFleshes = new ArrayList<>();
   private final List<Entity> spawnedEntities = new ArrayList<>();
   private MapRestorerManager mapRestorerManager;
-  private MidWaveEvent midWaveEvent;
+  private @Getter VillagerAiManager villagerAiManager;
+  private @Getter
+  @Setter MidWaveEvent midWaveEvent;
+  private Map<String, Object> metadataContainer = new HashMap<>();
 
   private final Map<SpawnPoint, List<Location>> spawnPoints = new EnumMap<>(SpawnPoint.class);
 
   private ShopManager shopManager;
-  private EnemySpawnManager enemySpawnManager;
-  private CreatureTargetManager creatureTargetManager;
+  private @Getter NewEnemySpawnerManager newEnemySpawnerManager;
   private AssistHandler assistHandler;
 
   private boolean fighting = false;
@@ -92,9 +94,9 @@ public class Arena extends PluginArena {
     super(id);
     setPluginValues();
     shopManager = new ShopManager(this);
-    enemySpawnManager = new EnemySpawnManager(this);
-    creatureTargetManager = new CreatureTargetManager(this);
+    newEnemySpawnerManager = new NewEnemySpawnerManager(this);
     mapRestorerManager = new MapRestorerManager(this);
+    villagerAiManager = new VillagerAiManager(this);
     assistHandler = new AssistHandler(plugin);
     setMapRestorerManager(mapRestorerManager);
     setScoreboardManager(new ScoreboardManager(this));
@@ -119,7 +121,7 @@ public class Arena extends PluginArena {
   }
 
   private void setPluginValues() {
-    for(SpawnPoint point : SpawnPoint.values()) {
+    for (SpawnPoint point : SpawnPoint.values()) {
       spawnPoints.put(point, new ArrayList<>());
     }
   }
@@ -128,21 +130,13 @@ public class Arena extends PluginArena {
     return shopManager;
   }
 
-  public EnemySpawnManager getEnemySpawnManager() {
-    return enemySpawnManager;
-  }
-
-  public CreatureTargetManager getCreatureTargetManager() {
-    return creatureTargetManager;
-  }
-
   public AssistHandler getAssistHandler() {
     return assistHandler;
   }
 
   public void clearVillagers() {
-    for(Entity entity : plugin.getBukkitHelper().getNearbyEntities(getStartLocation(), 50)) {
-      if(!(entity instanceof Villager)) {
+    for (Entity entity : plugin.getBukkitHelper().getNearbyEntities(getStartLocation(), 50)) {
+      if (!(entity instanceof Villager)) {
         continue;
       }
       removeVillager((Villager) entity);
@@ -151,18 +145,18 @@ public class Arena extends PluginArena {
 
   public void spawnVillagers() {
     List<Location> villagerSpawns = getVillagerSpawns();
-    if(villagerSpawns.isEmpty()) {
+    if (villagerSpawns.isEmpty()) {
       getPlugin().getDebugger().debug(Level.WARNING, "No villager spawns set for {0} game won't start", getId());
       return;
     }
 
     int amount = getPlugin().getConfig().getInt("Limit.Spawn.Villagers", 10);
     int spawnSize = villagerSpawns.size();
-    for(int i = 0; i < amount; i++) {
+    for (int i = 0; i < amount; i++) {
       spawnVillager(villagerSpawns.get(i % spawnSize));
     }
 
-    if(villagers.isEmpty()) {
+    if (villagers.isEmpty()) {
       getPlugin().getDebugger().debug(Level.WARNING, "Spawning villagers for {0} failed! Are villager spawns set in safe and valid locations?", getId());
     }
   }
@@ -244,90 +238,72 @@ public class Arena extends PluginArena {
   }
 
   public void spawnVillager(Location location) {
-    Villager villager = CreatureUtils.getCreatureInitializer().spawnVillager(location);
+    Villager villager = NewCreatureUtils.spawnVillager(location);
     villager.setCustomNameVisible(true);
-    String name = CreatureUtils.getRandomVillagerName();
-    villager.setMetadata(CustomCreature.CREATURE_CUSTOM_NAME_METADATA, new FixedMetadataValue(plugin, name));
-    villager.setCustomName(CreatureUtils.getHealthNameTag(villager));
+    String name = NewCreatureUtils.getRandomVillagerName();
+    villager.setMetadata(NewEnemySpawnerManager.CREATURE_CUSTOM_NAME_METADATA, new FixedMetadataValue(plugin, name));
+    villager.setCustomName(NewCreatureUtils.getHealthNameTag(villager));
     villager.setVillagerLevel(5);
     villager.setVillagerType(Villager.Type.values()[ThreadLocalRandom.current().nextInt(Villager.Type.values().length)]);
     villager.setProfession(Villager.Profession.values()[ThreadLocalRandom.current().nextInt(Villager.Profession.values().length)]);
+    villager.setCollidable(false);
     addVillager(villager);
-  }
-
-  @Nullable
-  public Creature spawnWolf(Location location, Player player) {
-    if(!canSpawnMobForPlayer(player, EntityType.WOLF)) {
-      return null;
-    }
-    return spawnWolfForce(location, player);
-  }
-
-  @Nullable
-  public Creature spawnWolfForce(Location location, Player player) {
-    Wolf wolf = CreatureUtils.getCreatureInitializer().spawnWolf(location);
-    wolf.setMetadata("VD_OWNER_UUID", new FixedMetadataValue(getPlugin(), player.getUniqueId().toString()));
-    wolf.setMetadata("VD_ALIVE_SINCE_WAVE", new FixedMetadataValue(getPlugin(), getWave()));
-    wolf.setOwner(player);
-    wolf.setCustomNameVisible(true);
-    wolf.setCollarColor(DyeColor.values()[ThreadLocalRandom.current().nextInt(DyeColor.values().length)]);
-    wolf.setCustomName(new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_WOLF_NAME").asKey().integer(0).player(player).build());
-    new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_WOLF_SPAWN").asKey().player(player).sendPlayer();
-    addWolf(wolf);
-    return wolf;
+    villagerAiManager.doApplyVillagerPersonality(villager);
   }
 
   @Nullable
   public Creature spawnGolem(Location location, Player player) {
-    if(!canSpawnMobForPlayer(player, EntityType.IRON_GOLEM)) {
+    if (!canSpawnMobForPlayer(player, EntityType.IRON_GOLEM)) {
       return null;
     }
     return spawnGolemForce(location, player);
   }
 
-  @Nullable
+  @NotNull
   public Creature spawnGolemForce(Location location, Player player) {
-    IronGolem ironGolem = CreatureUtils.getCreatureInitializer().spawnGolem(location);
+    IronGolem ironGolem = NewCreatureUtils.spawnIronGolem(location);
     ironGolem.setMetadata("VD_OWNER_UUID", new FixedMetadataValue(getPlugin(), player.getUniqueId().toString()));
     ironGolem.setMetadata("VD_ALIVE_SINCE_WAVE", new FixedMetadataValue(getPlugin(), getWave()));
     ironGolem.setCustomNameVisible(true);
-    ironGolem.setCustomName(new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_GOLEM_NAME").asKey().integer(0).player(player).build());
-    ironGolem.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(150.0);
-    new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_GOLEM_SPAWN").asKey().player(player).sendPlayer();
+    ironGolem.setCustomName(NewCreatureUtils.getHealthNameTag(ironGolem));
     addIronGolem(ironGolem);
-    MiscUtils.getEntityAttribute(ironGolem, Attribute.GENERIC_MOVEMENT_SPEED).ifPresent(ai -> ai.setBaseValue(0.25));
     return ironGolem;
   }
 
-  protected void addWolf(Wolf wolf) {
+  public void addWolf(Wolf wolf) {
     wolves.add(wolf);
     spawnedEntities.add(wolf);
   }
 
   public boolean canSpawnMobForPlayer(Player player, EntityType type) {
-    if(type != EntityType.IRON_GOLEM && type != EntityType.WOLF) {
+    if (type != EntityType.IRON_GOLEM && type != EntityType.WOLF) {
       return false;
     }
-    int globalEntityLimit = 0;
-    switch(type) {
+    int entityLimit = 0;
+    switch (type) {
       case WOLF:
-        globalEntityLimit = plugin.getConfig().getInt("Limit.Spawn.Wolves", 20);
+        entityLimit = 10;
         break;
       case IRON_GOLEM:
-        globalEntityLimit = plugin.getConfig().getInt("Limit.Spawn.Golems", 15);
+        entityLimit = 5;
         break;
       default:
         break;
     }
-    plugin.getDebugger().debug("SpawnMobCheck for {0} and mob {1}, globalLimit {2}", player.getName(), type, globalEntityLimit);
+    plugin.getDebugger().debug("SpawnMobCheck for {0} and mob {1}, globalLimit {2}", player.getName(), type, entityLimit);
     List<Entity> entities = new ArrayList<>(spawnedEntities);
-    if(plugin.getConfigPreferences().getOption("LIMIT_ENTITY_BUY_AFTER_DEATH")) {
+    if (plugin.getConfigPreferences().getOption("LIMIT_ENTITY_BUY_AFTER_DEATH")) {
       List<Entity> entityList = entities.stream().filter(entity -> entity.getType() == type).collect(Collectors.toList());
-      entityList = entityList.stream().filter(en -> !en.isDead()).collect(Collectors.toList());
+      entityList = entityList
+        .stream()
+        .filter(en -> !en.isDead())
+        .filter(en -> en.hasMetadata("VD_OWNER_UUID"))
+        .filter(en -> player.getUniqueId().equals(UUID.fromString(en.getMetadata("VD_OWNER_UUID").get(0).asString())))
+        .collect(Collectors.toList());
 
       long spawnedAmount = entityList.size();
-      if(spawnedAmount >= globalEntityLimit) {
-        new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_SHOP_MOB_LIMIT_REACHED").asKey().player(player).integer(globalEntityLimit).sendPlayer();
+      if (spawnedAmount >= entityLimit) {
+        new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_SHOP_MOB_LIMIT_REACHED").asKey().player(player).integer(entityLimit).sendPlayer();
         return false;
       }
     }
@@ -379,12 +355,12 @@ public class Arena extends PluginArena {
     int rottenFleshLevel = getArenaOption(rottenFleshLevelOption);
     int rottenFleshAmount = getArenaOption("ROTTEN_FLESH_AMOUNT");
 
-    if(rottenFleshLevel == 0 && rottenFleshAmount > 50) {
+    if (rottenFleshLevel == 0 && rottenFleshAmount > 50) {
       setArenaOption(rottenFleshLevelOption, 1);
       return true;
     }
 
-    if(rottenFleshLevel * 10 * getPlayers().size() + 10 < rottenFleshAmount) {
+    if (rottenFleshLevel * 10 * getPlayers().size() + 10 < rottenFleshAmount) {
       changeArenaOptionBy(rottenFleshLevelOption, 1);
       return true;
     }
@@ -405,14 +381,6 @@ public class Arena extends PluginArena {
   @Override
   public MapRestorerManager getMapRestorerManager() {
     return mapRestorerManager;
-  }
-
-  public MidWaveEvent getMidWaveEvent() {
-    return midWaveEvent;
-  }
-
-  public void setMidWaveEvent(MidWaveEvent midWaveEvent) {
-    this.midWaveEvent = midWaveEvent;
   }
 
   @NotNull
@@ -448,6 +416,22 @@ public class Arena extends PluginArena {
 
   public void removeSpecialEntity(LivingEntity entity) {
     specialEntities.remove(entity);
+  }
+
+  public <T> T getMetadata(String key, T defaultValue) {
+    Object obj = metadataContainer.get(key);
+    if (obj == null) {
+      return defaultValue;
+    }
+    return (T) obj;
+  }
+
+  public void setMetadata(String key, Object data) {
+    metadataContainer.put(key, data);
+  }
+
+  public void removeMetadata(String key) {
+    metadataContainer.remove(key);
   }
 
   public enum SpawnPoint {

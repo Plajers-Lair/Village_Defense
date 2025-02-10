@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,8 +68,6 @@ public class AdditionalValueInitializer {
 
   private void registerPermission() {
     getPermissionsManager().registerPermissionCategory("ORBS_BOOSTER", new PermissionCategory("Orbs-Boost", null));
-    getPermissionsManager().registerPermissionCategory("PLAYER_SPAWN_LIMIT_WOLVES", new PermissionCategory("Spawn-Limit.Wolves", null));
-    getPermissionsManager().registerPermissionCategory("PLAYER_SPAWN_LIMIT_GOLEMS", new PermissionCategory("Spawn-Limit.Golems", null));
     getPermissionsManager().registerPermission("KIT_PREMIUM_UNLOCK", new Permission("Basic.Premium-Kits", "villagedefense.kits.premium"));
   }
 
@@ -127,28 +125,10 @@ public class AdditionalValueInitializer {
      * It's counting up to 20 and resets to 0.
      * If value is equal 5 or 15 and wave is enough high special
      * zombie units will be spawned in addition to standard ones.
+     *
+     * @deprecated subject to removal
      */
     getArenaOptionManager().registerArenaOption("ZOMBIE_SPAWN_COUNTER", new ArenaOption("null", 0));
-    /**
-     * Value describes how many seconds zombie spawn system should hold and not spawn any entity.
-     * This value reduces server load and lag preventing spawning hordes at once.
-     * Example when wave is 30 counter will set value to 2 holding zombies spawn for 2 seconds
-     * Algorithm: floor(wave / 15)
-     */
-    getArenaOptionManager().registerArenaOption("ZOMBIE_IDLE_PROCESS", new ArenaOption("null", 0));
-    /**
-     * Value that describes the multiplier of extra health zombies will receive.
-     * Current health + multiplier.
-     * <p>
-     * Since 4.0.0 there is maximum amount of 750 to spawn in wave.
-     * The more value will be above 750 the stronger zombies will be.
-     * <p>
-     * Zombies amount is based on algorithm: ceil((players * 0.5) * (wave * wave) / 2)
-     * Difficulty multiplier is based on: ceil((ceil((players * 0.5) * (wave * wave) / 2) - 750) / 15)
-     * Example: 12 players in wave 20 will receive 30 difficulty multiplier.
-     * So each zombie will get 30 HP more, harder!
-     */
-    getArenaOptionManager().registerArenaOption("ZOMBIE_DIFFICULTY_MULTIPLIER", new ArenaOption("null", 1));
   }
 
   private ConfigPreferences getConfigPreferences() {

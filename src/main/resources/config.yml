@@ -119,14 +119,6 @@ Sign-Block-States: true
 Holidays: true
 
 
-# Should the plugin enable special powerups which can be found in powerups.yml
-Powerups: false
-
-
-# Should the plugin enable kits which can be found in kits.yml
-Kits: true
-
-
 # Should we create leaderboards out of the stats?
 Leaderboard: true
 
@@ -184,10 +176,6 @@ Limit:
     # Limit of waves, if this wave ends game will end
     Game-End: 50
   Spawn:
-    # Limit of mobs can be spawned globally in-game
-    # Will affect only buying them in in-game shop
-    Wolves: 20
-    Golems: 15
     # How many villagers will be spawned in an arena?
     Villagers: 10
     # After how many Creatures should we limit them?
@@ -197,24 +185,10 @@ Limit:
   # entities died? The config limit and permission will be ignored.
   Entity-Buy-After-Death: false
 
-
-Creatures:
-  # Active after Creatures limit is reached
-  # Higher value means weaker Creatures
-  Multiplier-Divider: 18
-
-
 Orbs:
   Start:
     # Amount of orbs given to player when game starts
     Amount: 20
-  Death:
-    # PERCENTAGE, calculates the percentage of orbs left from the value
-    # AMOUNT, adjusts the orbs to the value (negative value removes orbs, positive value adds orbs)
-    # SET, sets the orbs to the value
-    # KEEP, will leave the orbs like they are
-    Type: PERCENTAGE
-    Value: 50
 
 # Zombie glow to make it visible to players.
 Glowing-Status:

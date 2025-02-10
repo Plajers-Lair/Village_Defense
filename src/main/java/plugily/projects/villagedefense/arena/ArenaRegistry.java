@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import plugily.projects.minigamesbox.classic.arena.PluginArenaRegistry;
 import plugily.projects.minigamesbox.classic.handlers.language.MessageBuilder;
 import plugily.projects.minigamesbox.classic.utils.serialization.LocationSerializer;
 import plugily.projects.villagedefense.Main;
+import plugily.projects.villagedefense.arena.villager.VillagerAiManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +91,20 @@ public class ArenaRegistry extends PluginArenaRegistry {
       plugin.getDebugger().sendConsoleMsg(new MessageBuilder("VALIDATOR_INVALID_ARENA_CONFIGURATION").asKey().value("THERE IS A WRONG " +
         "DIFFICULTY -> SET IT TO ANOTHER ONE THAN PEACEFUL - WE SET IT TO EASY").arena(arena).build());
       arena.getStartLocation().getWorld().setDifficulty(Difficulty.EASY);
+    }
+
+    for (String location : section.getStringList(id + ".villager-ai.socialZones")) {
+      ((Arena) arena).getVillagerAiManager().registerArenaPlace(VillagerAiManager.Place.VILLAGER_SOCIAL_ZONE, LocationSerializer.getLocation(location));
+    }
+    for (String location : section.getStringList(id + ".villager-ai.homeZones")) {
+      ((Arena) arena).getVillagerAiManager().registerArenaPlace(VillagerAiManager.Place.VILLAGER_HOME_ZONE, LocationSerializer.getLocation(location));
+    }
+    //todo
+    /*for(String location : section.getStringList(id + ".villager-ai.escapeZones")) {
+      ((Arena) arena).getVillagerAiManager().registerArenaPlace(VillagerAiManager.Place.VILLAGER_ESCAPE_ZONE, LocationSerializer.getLocation(location));
+    }*/
+    for (String location : section.getStringList(id + ".villager-ai.fishingZones")) {
+      ((Arena) arena).getVillagerAiManager().registerArenaPlace(VillagerAiManager.Place.VILLAGER_FISHING_ZONE, LocationSerializer.getLocation(location));
     }
     return true;
   }

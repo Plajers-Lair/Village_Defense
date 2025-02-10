@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import plugily.projects.villagedefense.Main;
 import plugily.projects.villagedefense.arena.Arena;
-import plugily.projects.villagedefense.creatures.CreatureUtils;
+import plugily.projects.villagedefense.arena.ArenaMetadata;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewCreatureUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,7 @@ public class PowerupEvents implements Listener {
 
   @EventHandler
   public void onPowerupDrop(EntityDeathEvent event) {
-    if (!CreatureUtils.isEnemy(event.getEntity())) {
+    if (!NewCreatureUtils.isEnemy(event.getEntity())) {
       return;
     }
     for (Arena arena : plugin.getArenaRegistry().getPluginArenas()) {
@@ -59,7 +60,20 @@ public class PowerupEvents implements Listener {
         continue;
       }
       if (ThreadLocalRandom.current().nextDouble(0.0, 100.0) <= 1.5) {
-        powerups.get(random.nextInt(powerups.size())).spawn(arena, event.getEntity().getLocation().clone().add(0, 0.1, 0));
+        int powerupsDropped = arena.getMetadata(ArenaMetadata.POWERUPS_WAVE_COUNT, 0);
+        if (powerupsDropped >= 4) {
+          return;
+        }
+        arena.setMetadata(ArenaMetadata.POWERUPS_WAVE_COUNT, powerupsDropped + 1);
+        arena.setMetadata(ArenaMetadata.LAST_POWERUP_DROP_MILLIS, System.currentTimeMillis());
+        while (true) {
+          Powerup powerup = powerups.get(random.nextInt(powerups.size()));
+          if (!powerup.canSpawn(arena)) {
+            continue;
+          }
+          powerup.spawn(arena, event.getEntity().getLocation().clone().add(0, 0.1, 0));
+          return;
+        }
       }
     }
   }

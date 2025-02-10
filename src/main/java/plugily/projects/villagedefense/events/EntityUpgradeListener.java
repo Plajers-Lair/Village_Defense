@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 package plugily.projects.villagedefense.events;
 
 import org.bukkit.Sound;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -59,12 +60,15 @@ public class EntityUpgradeListener implements Listener {
     }
     UUID uuid = UUID.fromString(event.getRightClicked().getMetadata("VD_OWNER_UUID").get(0).asString());
     if(!event.getPlayer().getUniqueId().equals(uuid)) {
-      new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_CANT_UPGRADE_OTHER").asKey().player(event.getPlayer()).sendPlayer();
-      event.getPlayer().playSound(event.getPlayer(), Sound.ENTITY_VILLAGER_NO, 1, 1);
       return;
     }
     if (event.getRightClicked().hasMetadata(NewEntityUpgradeManager.UPGRADES_DISABLED_METADATA)) {
       new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_CANT_UPGRADE_THIS").asKey().player(event.getPlayer()).sendPlayer();
+      event.getPlayer().playSound(event.getPlayer(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+      return;
+    }
+    if (event.getRightClicked() instanceof Ageable ageable && !ageable.isAdult()) {
+      new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_CANT_UPGRADE_BABY").asKey().player(event.getPlayer()).sendPlayer();
       event.getPlayer().playSound(event.getPlayer(), Sound.ENTITY_VILLAGER_NO, 1, 1);
       return;
     }

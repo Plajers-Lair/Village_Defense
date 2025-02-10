@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ import plugily.projects.minigamesbox.classic.arena.states.PluginInGameState;
 import plugily.projects.minigamesbox.classic.handlers.language.MessageBuilder;
 import plugily.projects.minigamesbox.classic.handlers.language.TitleBuilder;
 import plugily.projects.minigamesbox.classic.utils.helper.SoundHelper;
-import plugily.projects.minigamesbox.classic.utils.version.ServerVersion;
 import plugily.projects.villagedefense.arena.Arena;
 
 /**
@@ -41,7 +40,7 @@ public class InGameState extends PluginInGameState {
     if(pluginArena == null) {
       return;
     }
-    pluginArena.getEnemySpawnManager().spawnGlitchCheck();
+    pluginArena.getNewEnemySpawnerManager().doGlitchCheck();
 
     if(pluginArena.getVillagers().isEmpty() || arena.getPlayersLeft().isEmpty() && arena.getArenaState() != ArenaState.ENDING) {
       getPlugin().getArenaManager().stopGame(false, arena);
@@ -50,25 +49,23 @@ public class InGameState extends PluginInGameState {
     int zombiesLeft = pluginArena.getZombiesLeft();
     getPlugin().getDebugger().debug("Arena {0} Zombies to spawn {1} Zombies left {2} Fighting {3}", arena.getId(), arena.getArenaOption("ZOMBIES_TO_SPAWN"), zombiesLeft, pluginArena.isFighting());
     if(pluginArena.isFighting()) {
-      pluginArena.getCreatureTargetManager().targetCreatures();
-      pluginArena.getCreatureTargetManager().targetRideableCreatures();
       if(zombiesLeft <= 0) {
         pluginArena.setFighting(false);
         pluginArena.getPlugin().getArenaManager().endWave(pluginArena);
-      } else if(arena.getArenaOption("ZOMBIES_TO_SPAWN") > 0) {
-        pluginArena.getEnemySpawnManager().spawnEnemies();
-        setArenaTimer(500);
+      } else {
+        pluginArena.getNewEnemySpawnerManager().doSpawnEnemies();
+        if (!pluginArena.getNewEnemySpawnerManager().hasSpawningStarted()) {
+          setArenaTimer(500);
+        }
       }
-      if(ServerVersion.Version.isCurrentEqualOrHigher(ServerVersion.Version.v1_9_R1)) {
-        int zombiesLeftFrom = getPlugin().getConfig().getInt("Glowing-Status.Creatures-Left");
-        int startingWave;
-        if(zombiesLeftFrom > 0 && zombiesLeft <= zombiesLeftFrom
-          && (startingWave = getPlugin().getConfig().getInt("Glowing-Status.Starting-Wave")) > 0
-          && pluginArena.getWave() >= startingWave) {
-          for(org.bukkit.entity.Creature remaining : pluginArena.getEnemies()) {
-            if(!remaining.isGlowing()) { // To avoid setting glowing property every time
-              remaining.setGlowing(true);
-            }
+      int zombiesLeftFrom = getPlugin().getConfig().getInt("Glowing-Status.Creatures-Left");
+      int startingWave;
+      if (zombiesLeftFrom > 0 && zombiesLeft <= zombiesLeftFrom
+        && (startingWave = getPlugin().getConfig().getInt("Glowing-Status.Starting-Wave")) > 0
+        && pluginArena.getWave() >= startingWave) {
+        for (org.bukkit.entity.Creature remaining : pluginArena.getEnemies()) {
+          if (!remaining.isGlowing()) { // To avoid setting glowing property every time
+            remaining.setGlowing(true);
           }
         }
       }
@@ -81,6 +78,9 @@ public class InGameState extends PluginInGameState {
       }
       if(arena.getArenaOption("ZOMBIES_TO_SPAWN") < 0) {
         arena.setArenaOption("ZOMBIES_TO_SPAWN", 0);
+      }
+      if (arena.getTimer() % 4 == 0) {
+        pluginArena.getVillagerAiManager().doRetreatVillagers();
       }
     } else if(arena.getTimer() <= 3) {
       SoundHelper.playArenaCountdown(arena);

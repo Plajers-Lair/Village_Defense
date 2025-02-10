@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package plugily.projects.villagedefense.kits.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -30,6 +31,8 @@ import plugily.projects.minigamesbox.classic.utils.helper.ItemUtils;
 import plugily.projects.minigamesbox.classic.utils.version.VersionUtils;
 import plugily.projects.villagedefense.Main;
 import plugily.projects.villagedefense.arena.Arena;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewCreatureUtils;
+import plugily.projects.villagedefense.kits.terminator.TerminatorAugmentRegistry;
 
 /**
  * @author Plajer
@@ -45,6 +48,7 @@ public class KitHelper {
 
   public static void init(Main plugin) {
     KitHelper.plugin = plugin;
+    TerminatorAugmentRegistry.init(plugin);
   }
 
   public static boolean isInGameWithKitAndItemInHand(Player player, Class<? extends Kit> instance) {
@@ -97,12 +101,38 @@ public class KitHelper {
     return true;
   }
 
-  public static double maxHealthPercentDamage(LivingEntity entity, Player damager, double percent) {
+  public static double maxHealthPercentDamage(LivingEntity entity, double percent) {
+    double damageDone = (VersionUtils.getMaxHealth(entity) / 100.0) * percent;
+    entity.setHealth(Math.max(0, entity.getHealth() - damageDone));
+    //todo implement max health percentage immunity here (for bosses)
+    entity.damage(0);
+    return damageDone;
+  }
+
+  public static double maxHealthPercentDamage(LivingEntity entity, LivingEntity damager, double percent) {
     double damageDone = (VersionUtils.getMaxHealth(entity) / 100.0) * percent;
     entity.setHealth(Math.max(0, entity.getHealth() - damageDone));
     //todo implement max health percentage immunity here (for bosses)
     entity.damage(0, damager);
     return damageDone;
+  }
+
+  public static void damageNearbyFlat(LivingEntity damager, double damage, double radius) {
+    for (Entity entity : damager.getNearbyEntities(radius, radius, radius)) {
+      if (!NewCreatureUtils.isEnemy(entity)) {
+        continue;
+      }
+      ((LivingEntity) entity).damage(damage, damager);
+    }
+  }
+
+  public static void damageNearbyPercent(LivingEntity damager, double damage, double radius) {
+    for (Entity entity : damager.getNearbyEntities(radius, radius, radius)) {
+      if (!NewCreatureUtils.isEnemy(entity)) {
+        continue;
+      }
+      maxHealthPercentDamage((LivingEntity) entity, damager, damage);
+    }
   }
 
 }

@@ -1,0 +1,640 @@
+# mode_type:
+#   wave_number:
+#      stage_number:
+#         - entity_id;amount
+
+classic_gold:
+  1:
+    1:
+      - VD_ZOMBIE;2
+  2:
+    1:
+      - VD_ZOMBIE;4
+  3:
+    1:
+      - VD_ZOMBIE;4
+      - VD_BABY_ZOMBIE;1
+  4:
+    1:
+      - VD_ZOMBIE;5
+      - VD_BABY_ZOMBIE;1
+    2:
+      - VD_ZOMBIE;3
+      - VD_BABY_ZOMBIE;1
+  5:
+    1:
+      - VD_MEDIUM_ZOMBIE;1
+      - VD_BABY_ZOMBIE;1
+      - VD_ZOMBIE;4
+    2:
+      - VD_ZOMBIE;6
+  6:
+    1:
+      - VD_MEDIUM_ZOMBIE;2
+      - VD_ZOMBIE;5
+    2:
+      - VD_BABY_ZOMBIE;3
+      - VD_ZOMBIE;4
+      - VD_PLAYER_BUSTER;1
+  7:
+    1:
+      - VD_MEDIUM_ZOMBIE;2
+      - VD_BABY_ZOMBIE;2
+      - VD_ZOMBIE;6
+      - VD_PLAYER_BUSTER;1
+    2:
+      - VD_ZOMBIE;6
+  8:
+    1:
+      - VD_MEDIUM_ZOMBIE;3
+      - VD_BABY_ZOMBIE;1
+      - VD_ZOMBIE;7
+    2:
+      - VD_BABY_ZOMBIE;4
+      - VD_MEDIUM_ZOMBIE;1
+      - VD_PLAYER_BUSTER;1
+      - VD_ZOMBIE;3
+  9:
+    1:
+      - VD_MEDIUM_ZOMBIE;3
+      - VD_BABY_ZOMBIE;2
+      - VD_ZOMBIE;8
+    2:
+      - VD_PLAYER_BUSTER;2
+      - VD_ZOMBIE;6
+  10:
+    1:
+      - VD_HORDE_ZOMBIE;15
+      - VD_RUNNER_ZOMBIE;2
+    2:
+      - VD_HORDE_ZOMBIE;10
+      - VD_BABY_ZOMBIE;5
+      - VD_MEDIUM_ZOMBIE;2
+  11:
+    1:
+      - VD_MEDIUM_ZOMBIE;2
+      - VD_ZOMBIE;10
+      - VD_RUNNER_ZOMBIE;2
+      - VD_BABY_ZOMBIE;3
+    2:
+      - VD_PLAYER_BUSTER;3
+      - VD_ZOMBIE;6
+      - VD_MEDIUM_ZOMBIE;2
+  12:
+    1:
+      - VD_MEDIUM_ZOMBIE;5
+      - VD_BABY_ZOMBIE;4
+      - VD_ZOMBIE;10
+    2:
+      - VD_ZOMBIE;6
+      - VD_MEDIUM_ZOMBIE;5
+      - VD_RUNNER_ZOMBIE;3
+      - VD_PLAYER_BUSTER;2
+  13:
+    1:
+      - VD_MEDIUM_ZOMBIE;5
+      - VD_BABY_ZOMBIE;4
+      - VD_ZOMBIE;10
+      - VD_PLAYER_BUSTER;2
+    2:
+      - VD_MEDIUM_ZOMBIE;10
+      - VD_ZOMBIE;5
+      - VD_BABY_ZOMBIE;2
+  14:
+    1:
+      - VD_MEDIUM_ZOMBIE;5
+      - VD_PLAYER_BUSTER;2
+      - VD_HORDE_ZOMBIE;20
+    2:
+      - VD_HORDE_ZOMBIE;15
+      - VD_RUNNER_ZOMBIE;3
+      - VD_BABY_ZOMBIE;2
+    3:
+      - VD_MEDIUM_ZOMBIE;5
+  15:
+    1:
+      - VD_HARD_ZOMBIE;2
+      - VD_MEDIUM_ZOMBIE;6
+      - VD_ZOMBIE;12
+    2:
+      - VD_BABY_ZOMBIE;6
+      - VD_PLAYER_BUSTER;4
+      - VD_RUNNER_ZOMBIE;6
+    3:
+      - VD_ZOMBIE;10
+  16:
+    1:
+      - VD_HARD_ZOMBIE;3
+      - VD_MEDIUM_ZOMBIE;8
+      - VD_BABY_ZOMBIE;3
+      - VD_ZOMBIE;10
+    2:
+      - VD_HARD_ZOMBIE;2
+      - VD_MEDIUM_ZOMBIE;5
+      - VD_RUNNER_ZOMBIE;4
+    3:
+      - VD_PLAYER_BUSTER;2
+      - VD_ZOMBIE;8
+      - VD_BABY_ZOMBIE;4
+  17:
+    1:
+      - VD_HARD_ZOMBIE;3
+      - VD_MEDIUM_ZOMBIE;10
+      - VD_PLAYER_BUSTER;2
+      - VD_ZOMBIE;12
+    2:
+      - VD_HORDE_ZOMBIE;20
+      - VD_RUNNER_ZOMBIE;5
+    3:
+      - VD_HORDE_ZOMBIE;10
+      - VD_BABY_ZOMBIE;4
+  18:
+    1:
+      - VD_HARD_ZOMBIE;8
+      - VD_BABY_ZOMBIE;8
+      - VD_HORDE_ZOMBIE;20
+    2:
+      - VD_HORDE_ZOMBIE;15
+      - VD_PLAYER_BUSTER;5
+      - VD_MEDIUM_ZOMBIE;4
+    3:
+      - VD_HORDE_ZOMBIE;10
+      - VD_RUNNER_ZOMBIE;5
+  19:
+    1:
+      - VD_HARD_ZOMBIE;5
+      - VD_MEDIUM_ZOMBIE;10
+      - VD_BABY_ZOMBIE;3
+      - VD_ZOMBIE;12
+    2:
+      - VD_MEDIUM_ZOMBIE;5
+      - VD_RUNNER_ZOMBIE;10
+      - VD_PLAYER_BUSTER;2
+    3:
+      - VD_ZOMBIE;10
+  20:
+    1:
+      - VD_TANK_ZOMBIE;1
+      - VD_HARD_ZOMBIE;6
+      - VD_MEDIUM_ZOMBIE;12
+    2:
+      - VD_PLAYER_BUSTER;2
+      - VD_BABY_ZOMBIE;5
+      - VD_ZOMBIE;10
+      - VD_MEDIUM_ZOMBIE;8
+    3:
+      - VD_RUNNER_ZOMBIE;5
+      - VD_ZOMBIE;10
+  21:
+    1:
+      - VD_TANK_ZOMBIE;2
+      - VD_HARD_ZOMBIE;8
+      - VD_MEDIUM_ZOMBIE;16
+    2:
+      - VD_ZOMBIE;20
+      - VD_PLAYER_BUSTER;3
+    3:
+      - VD_RUNNER_ZOMBIE;8
+      - VD_HARD_ZOMBIE;3
+  22:
+    1:
+      - VD_TANK_ZOMBIE;2
+      - VD_MEDIUM_ZOMBIE;7
+      - VD_HORDE_ZOMBIE;20
+    2:
+      - VD_HORDE_ZOMBIE;15
+      - VD_BABY_ZOMBIE;5
+      - VD_RUNNER_ZOMBIE;5
+    3:
+      - VD_HORDE_ZOMBIE;10
+      - VD_HARD_ZOMBIE;10
+      - VD_ZOMBIE;5
+  23:
+    1:
+      - VD_TANK_ZOMBIE;3
+      - VD_HARD_ZOMBIE;5
+      - VD_MEDIUM_ZOMBIE;10
+      - VD_ZOMBIE;10
+    2:
+      - VD_TANK_ZOMBIE;1
+      - VD_HARD_ZOMBIE;8
+      - VD_MEDIUM_ZOMBIE;12
+    3:
+      - VD_RUNNER_ZOMBIE;5
+      - VD_PLAYER_BUSTER;5
+      - VD_BABY_ZOMBIE;3
+  24:
+    1:
+      - VD_TANK_ZOMBIE;6
+      - VD_HARD_ZOMBIE;10
+      - VD_BABY_ZOMBIE;10
+    2:
+      - VD_BABY_ZOMBIE;10
+      - VD_RUNNER_ZOMBIE;15
+    3:
+      - VD_PLAYER_BUSTER;5
+      - VD_BABY_ZOMBIE;5
+      - VD_ZOMBIE;5
+  25:
+    1:
+      - VD_MEDIUM_ZOMBIE;10
+      - VD_ZOMBIE;8
+      - VD_KAMIKAZE_ZOMBIE;6
+    2:
+      - VD_TANK_ZOMBIE;4
+      - VD_HARD_ZOMBIE;10
+      - VD_MEDIUM_ZOMBIE;14
+    3:
+      - VD_BABY_ZOMBIE;5
+      - VD_ZOMBIE;10
+      - VD_KAMIKAZE_ZOMBIE;3
+  26:
+    1:
+      - VD_TANK_ZOMBIE;5
+      - VD_HARD_ZOMBIE;10
+      - VD_MEDIUM_ZOMBIE;15
+    2:
+      - VD_KAMIKAZE_ZOMBIE;2
+      - VD_MEDIUM_ZOMBIE;8
+      - VD_BABY_ZOMBIE;5
+    3:
+      - VD_ZOMBIE;10
+      - VD_PLAYER_BUSTER;3
+    4:
+      - VD_MEDIUM_ZOMBIE;5
+      - VD_ZOMBIE;10
+  27:
+    1:
+      - VD_HORDE_ZOMBIE;25
+      - VD_KAMIKAZE_ZOMBIE;5
+    2:
+      - VD_TANK_ZOMBIE;5
+      - VD_HORDE_ZOMBIE;10
+      - VD_BABY_ZOMBIE;10
+    3:
+      - VD_BABY_ZOMBIE;5
+      - VD_HORDE_ZOMBIE;15
+    4:
+      - VD_KAMIKAZE_ZOMBIE;5
+      - VD_HORDE_ZOMBIE;10
+  28:
+    1:
+      - VD_TANK_ZOMBIE;5
+      - VD_HARD_ZOMBIE;15
+      - VD_ZOMBIE;25
+    2:
+      - VD_KAMIKAZE_ZOMBIE;2
+      - VD_PLAYER_BUSTER;2
+      - VD_BABY_ZOMBIE;5
+      - VD_ZOMBIE;5
+    3:
+      - VD_MEDIUM_ZOMBIE;10
+      - VD_ZOMBIE;5
+    4:
+      - VD_TANK_ZOMBIE;2
+  29:
+    1:
+      - VD_TANK_ZOMBIE;6
+      - VD_HARD_ZOMBIE;10
+      - VD_MEDIUM_ZOMBIE;20
+    2:
+      - VD_KAMIKAZE_ZOMBIE;1
+      - VD_BABY_ZOMBIE;3
+      - VD_HARD_ZOMBIE;10
+    3:
+      - VD_ZOMBIE;10
+      - VD_PLAYER_BUSTER;10
+    4:
+      - VD_BABY_ZOMBIE;5
+      - VD_MEDIUM_ZOMBIE;5
+  30:
+    1:
+      - VD_MEDIUM_ZOMBIE;25
+      - VD_ZOMBIE;10
+      - VD_INVISIBLE_RUNNER_ZOMBIE;2
+    2:
+      - VD_TANK_ZOMBIE;5
+      - VD_HARD_ZOMBIE;15
+    3:
+      - VD_HARD_ZOMBIE;10
+      - VD_KAMIKAZE_ZOMBIE;2
+    4:
+      - VD_BABY_ZOMBIE;7
+      - VD_PLAYER_BUSTER;5
+      - VD_INVISIBLE_RUNNER_ZOMBIE;1
+  31:
+    1:
+      - VD_TANK_ZOMBIE;7
+      - VD_HARD_ZOMBIE;14
+      - VD_BABY_ZOMBIE;10
+      - VD_ZOMBIE;8
+    2:
+      - VD_INVISIBLE_RUNNER_ZOMBIE;2
+      - VD_PLAYER_BUSTER;5
+      - VD_ZOMBIE;10
+    3:
+      - VD_TANK_ZOMBIE;5
+      - VD_HARD_ZOMBIE;8
+    4:
+      - VD_BABY_ZOMBIE;5
+      - VD_KAMIKAZE_ZOMBIE;1
+      - VD_ZOMBIE;10
+  32:
+    1:
+      - VD_HORDE_ZOMBIE;25
+      - VD_INVISIBLE_RUNNER_ZOMBIE;2
+    2:
+      - VD_HORDE_ZOMBIE;10
+      - VD_BABY_ZOMBIE;10
+      - VD_TANK_ZOMBIE;5
+    3:
+      - VD_HORDE_ZOMBIE;15
+      - VD_TANK_ZOMBIE;5
+      - VD_KAMIKAZE_ZOMBIE;2
+    4:
+      - VD_HORDE_ZOMBIE;10
+      - VD_KAMIKAZE_ZOMBIE;5
+      - VD_PLAYER_BUSTER;2
+  33:
+    1:
+      - VD_TANK_ZOMBIE;15
+      - VD_HARD_ZOMBIE;15
+      - VD_BABY_ZOMBIE;5
+      - VD_INVISIBLE_RUNNER_ZOMBIE;2
+    2:
+      - VD_PLAYER_BUSTER;5
+      - VD_HARD_ZOMBIE;3
+      - VD_ZOMBIE;15
+    3:
+      - VD_TANK_ZOMBIE;5
+      - VD_KAMIKAZE_ZOMBIE;2
+      - VD_HARD_ZOMBIE;8
+    4:
+      - VD_INVISIBLE_RUNNER_ZOMBIE;2
+      - VD_BABY_ZOMBIE;5
+  34:
+    1:
+      - VD_TANK_ZOMBIE;12
+      - VD_HARD_ZOMBIE;8
+      - VD_ZOMBIE;10
+      - VD_KAMIKAZE_ZOMBIE;3
+    2:
+      - VD_BABY_ZOMBIE;10
+      - VD_TANK_ZOMBIE;8
+      - VD_KAMIKAZE_ZOMBIE;2
+      - VD_PLAYER_BUSTER;3
+    3:
+      - VD_TANK_ZOMBIE;5
+      - VD_HARD_ZOMBIE;10
+      - VD_ZOMBIE;5
+    4:
+      - VD_INVISIBLE_RUNNER_ZOMBIE;3
+      - VD_ZOMBIE;7
+  35:
+    1:
+      - VD_TANK_ZOMBIE;10
+      - VD_HARD_ZOMBIE;20
+      - VD_INVISIBLE_RUNNER_ZOMBIE;3
+    2:
+      - VD_HARD_ZOMBIE;10
+      - VD_ZOMBIE;10
+      - VD_BABY_ZOMBIE;5
+    3:
+      - VD_TANK_ZOMBIE;10
+      - VD_INVISIBLE_RUNNER_ZOMBIE;3
+    4:
+      - VD_KAMIKAZE_ZOMBIE;2
+      - VD_PLAYER_BUSTER;2
+      - VD_ZOMBIE;10
+  36:
+    1:
+      - VD_CONQUEROR_ZOMBIE;3
+      - VD_TANK_ZOMBIE;10
+      - VD_ZOMBIE;20
+      - VD_BABY_ZOMBIE;5
+    2:
+      - VD_CONQUEROR_ZOMBIE;2
+      - VD_TANK_ZOMBIE;10
+      - VD_KAMIKAZE_ZOMBIE;5
+    3:
+      - VD_INVISIBLE_RUNNER_ZOMBIE;5
+      - VD_CONQUEROR_ZOMBIE;2
+    4:
+      - VD_ZOMBIE;20
+      - VD_CONQUEROR_BOSS_ZOMBIE;2
+  37:
+    1:
+      - VD_CONQUEROR_BOSS_ZOMBIE;5
+      - VD_HORDE_ZOMBIE;30
+      - VD_TANK_ZOMBIE;5
+    2:
+      - VD_HORDE_ZOMBIE;15
+      - VD_CONQUEROR_ZOMBIE;5
+      - VD_BABY_ZOMBIE;5
+    3:
+      - VD_HORDE_ZOMBIE;10
+      - VD_INVISIBLE_RUNNER_ZOMBIE;5
+    4:
+      - VD_HORDE_ZOMBIE;10
+      - VD_CONQUEROR_BOSS_ZOMBIE;2
+  38:
+    1:
+      - VD_CONQUEROR_ZOMBIE;6
+      - VD_TANK_ZOMBIE;12
+      - VD_BABY_ZOMBIE;10
+    2:
+      - VD_CONQUEROR_BOSS_ZOMBIE;5
+      - VD_TANK_ZOMBIE;10
+      - VD_INVISIBLE_RUNNER_ZOMBIE;5
+    3:
+      - VD_TANK_ZOMBIE;8
+      - VD_CONQUEROR_ZOMBIE;10
+      - VD_KAMIKAZE_ZOMBIE;5
+    4:
+      - VD_TANK_ZOMBIE;10
+      - VD_BABY_ZOMBIE;5
+  39:
+    1:
+      - VD_CONQUEROR_ZOMBIE;8
+      - VD_TANK_ZOMBIE;15
+      - VD_KAMIKAZE_ZOMBIE;2
+    2:
+      - VD_CONQUEROR_BOSS_ZOMBIE;10
+      - VD_TANK_ZOMBIE;8
+      - VD_ZOMBIE;10
+    3:
+      - VD_KAMIKAZE_ZOMBIE;5
+      - VD_ZOMBIE;10
+    4:
+      - VD_TANK_ZOMBIE;10
+      - VD_CONQUEROR_ZOMBIE;5
+  40:
+    1:
+      - VD_CONQUEROR_ZOMBIE;10
+      - VD_TANK_ZOMBIE;10
+      - VD_INVISIBLE_BABY_ZOMBIE;3
+    2:
+      - VD_CONQUEROR_BOSS_ZOMBIE;10
+      - VD_TANK_ZOMBIE;10
+    3:
+      - VD_ZOMBIE;10
+      - VD_INVISIBLE_RUNNER_ZOMBIE;2
+    4:
+      - VD_TANK_ZOMBIE;10
+      - VD_CONQUEROR_ZOMBIE;6
+    5:
+      - VD_INVISIBLE_BABY_ZOMBIE;5
+      - VD_ZOMBIE;10
+  41:
+    1:
+      - VD_CONQUEROR_ZOMBIE;15
+      - VD_ZOMBIE;15
+      - VD_INVISIBLE_BABY_ZOMBIE;5
+    2:
+      - VD_CONQUEROR_BOSS_ZOMBIE;10
+      - VD_ZOMBIE;10
+    3:
+      - VD_KAMIKAZE_ZOMBIE;5
+      - VD_ZOMBIE;10
+    4:
+      - VD_CONQUEROR_ZOMBIE;10
+    5:
+      - VD_INVISIBLE_BABY_ZOMBIE;10
+  42:
+    1:
+      - VD_CONQUEROR_BOSS_ZOMBIE;10
+      - VD_HORDE_ZOMBIE;25
+    2:
+      - VD_HORDE_ZOMBIE;20
+      - VD_INVISIBLE_BABY_ZOMBIE;5
+    3:
+      - VD_HORDE_ZOMBIE;15
+      - VD_ZOMBIE;8
+    4:
+      - VD_HORDE_ZOMBIE;10
+    5:
+      - VD_HORDE_ZOMBIE;5
+  43:
+    1:
+      - VD_CONQUEROR_BOSS_ZOMBIE;15
+      - VD_ZOMBIE;15
+    2:
+      - VD_CONQUEROR_ZOMBIE;15
+      - VD_INVISIBLE_RUNNER_ZOMBIE;5
+      - VD_INVISIBLE_BABY_ZOMBIE;5
+    3:
+      - VD_ZOMBIE;20
+    4:
+      - VD_INVISIBLE_RUNNER_ZOMBIE;5
+      - VD_ZOMBIE;5
+    5:
+      - VD_CONQUEROR_ZOMBIE;5
+  44:
+    1:
+      - VD_CONQUEROR_BOSS_ZOMBIE;10
+      - VD_ZOMBIE;15
+    2:
+      - VD_CONQUEROR_BOSS_ZOMBIE;15
+      - VD_INVISIBLE_RUNNER_ZOMBIE;10
+    3:
+      - VD_ZOMBIE;25
+    4:
+      - VD_CONQUEROR_ZOMBIE;10
+    5:
+      - VD_INVISIBLE_BABY_ZOMBIE;5
+  45:
+    1:
+      - VD_VILLAGER_SLAYER;2
+      - VD_HORDE_ZOMBIE;25
+    2:
+      - VD_VILLAGER_SLAYER;2
+      - VD_HORDE_ZOMBIE;20
+    3:
+      - VD_HORDE_ZOMBIE;15
+      - VD_INVISIBLE_RUNNER_ZOMBIE;10
+    4:
+      - VD_HORDE_ZOMBIE;15
+      - VD_CONQUEROR_ZOMBIE;5
+    5:
+      - VD_VILLAGER_SLAYER;3
+  46:
+    1:
+      - VD_VILLAGER_SLAYER;10
+      - VD_ZOMBIE;10
+    2:
+      - VD_CONQUEROR_ZOMBIE;15
+      - VD_INVISIBLE_RUNNER_ZOMBIE;5
+      - VD_VILLAGER_SLAYER;1
+    3:
+      - VD_VILLAGER_SLAYER;3
+      - VD_ZOMBIE;15
+    4:
+      - VD_ZOMBIE;10
+      - VD_CONQUEROR_ZOMBIE;5
+    5:
+      - VD_VILLAGER_SLAYER;3
+  47:
+    1:
+      - VD_VILLAGER_SLAYER;10
+      - VD_ZOMBIE;10
+    2:
+      - VD_VILLAGER_SLAYER;5
+      - VD_CONQUEROR_BOSS_ZOMBIE;10
+    3:
+      - VD_VILLAGER_SLAYER;5
+      - VD_ZOMBIE;15
+    4:
+      - VD_VILLAGER_SLAYER;5
+      - VD_CONQUEROR_ZOMBIE;10
+    5:
+      - VD_VILLAGER_SLAYER;5
+  48:
+    1:
+      - VD_VILLAGER_SLAYER;12
+      - VD_ZOMBIE;10
+    2:
+      - VD_VILLAGER_SLAYER;5
+      - VD_CONQUEROR_BOSS_ZOMBIE;12
+    3:
+      - VD_VILLAGER_SLAYER;5
+      - VD_INVISIBLE_BABY_ZOMBIE;3
+    4:
+      - VD_VILLAGER_SLAYER;5
+      - VD_KAMIKAZE_ZOMBIE;5
+    5:
+      - VD_ZOMBIE;25
+  49:
+    1:
+      - VD_VILLAGER_SLAYER;14
+      - VD_ZOMBIE;10
+      - VD_INVISIBLE_BABY_ZOMBIE;1
+    2:
+      - VD_VILLAGER_SLAYER;5
+      - VD_CONQUEROR_BOSS_ZOMBIE;14
+    3:
+      - VD_VILLAGER_SLAYER;5
+      - VD_INVISIBLE_RUNNER_ZOMBIE;5
+    4:
+      - VD_VILLAGER_SLAYER;5
+      - VD_CONQUEROR_ZOMBIE;15
+    5:
+      - VD_ZOMBIE;20
+      - VD_VILLAGER_SLAYER;5
+  50:
+    1:
+      - VD_VILLAGER_SLAYER;15
+      - VD_ZOMBIE;15
+    2:
+      - VD_VILLAGER_SLAYER;8
+      - VD_CONQUEROR_BOSS_ZOMBIE;15
+    3:
+      - VD_VILLAGER_SLAYER;5
+      - VD_CONQUEROR_ZOMBIE;10
+    4:
+      - VD_VILLAGER_SLAYER;5
+      - VD_KAMIKAZE_ZOMBIE;10
+    5:
+      - VD_ZOMBIE;15
+      - VD_VILLAGER_SLAYER;2
+    6:
+      - VD_INVISIBLE_VILLAGER_SLAYER;1

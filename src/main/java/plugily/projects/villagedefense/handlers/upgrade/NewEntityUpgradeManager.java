@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,13 +23,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Golem;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Wolf;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
@@ -37,12 +36,12 @@ import org.jetbrains.annotations.Nullable;
 import plugily.projects.minigamesbox.classic.handlers.language.MessageBuilder;
 import plugily.projects.minigamesbox.classic.user.User;
 import plugily.projects.minigamesbox.classic.utils.helper.ItemBuilder;
+import plugily.projects.minigamesbox.classic.utils.misc.MiscUtils;
 import plugily.projects.minigamesbox.classic.utils.version.VersionUtils;
 import plugily.projects.minigamesbox.inventory.normal.NormalFastInv;
 import plugily.projects.villagedefense.Main;
 import plugily.projects.villagedefense.arena.ArenaManager;
-import plugily.projects.villagedefense.creatures.CreatureUtils;
-import plugily.projects.villagedefense.kits.PetsFriend;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewCreatureUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +71,7 @@ public class NewEntityUpgradeManager {
         .withId("GOLEM_HEALTH_AND_REGEN_" + (i + 1))
         .withName(color("&a&lHEALTH AND REGEN " + toRoman(i + 1)))
         .withDescription(listFromStrings(
-          color("&aUpgrade Max Health to &e&l" + (200 * (i + 1)) + " HP"),
+          color("&aUpgrade Max Health to &e&l" + (100 * (i + 1)) + " HP"),
           color("&aand Per Wave Regeneration to &e&l" + (2 * (i + 1)) + " HP"),
           color("&e&lCOST:&a %cost_value% orbs"),
           "",
@@ -80,7 +79,7 @@ public class NewEntityUpgradeManager {
         ))
         .withApplicableEntity(EntityType.IRON_GOLEM)
         .atSlot(10 + i)
-        .putUpgradeData("max_hp", 200 * (i + 1))
+        .putUpgradeData("max_hp", 100 * (i + 1))
         .putUpgradeData("regen", 2 * (i + 1))
         .withCost(150 * (i + 1));
       if (i > 0) {
@@ -94,7 +93,7 @@ public class NewEntityUpgradeManager {
         .withName(color("&a&lDAMAGE AND SPEED " + toRoman(i + 1)))
         .withDescription(listFromStrings(
           color("&aIncrease Damage by &e&l" + (3 + (i * 3)) + " DMG"),
-          color("&aand Movement Speed by &e&l" + (0.25 + (i * 0.05)) + " MS"),
+          color("&aand Movement Speed by &e&l" + (0.25 + ((i + 1) * 0.05)) + " MS"),
           color("&e&lCOST:&a %cost_value% orbs"),
           "",
           color("&8Click to purchase")
@@ -102,7 +101,7 @@ public class NewEntityUpgradeManager {
         .withApplicableEntity(EntityType.IRON_GOLEM)
         .atSlot(14 + i)
         .putUpgradeData("damage", 3 + (i * 3))
-        .putUpgradeData("movement_speed", 0.25 + (i * 0.05))
+        .putUpgradeData("movement_speed", 0.25 + ((i + 1) * 0.05))
         .withCost(150 * (i + 1));
       if (i > 0) {
         builder = builder.andDependsOn("GOLEM_DAMAGE_AND_SPEED_" + i);
@@ -163,20 +162,18 @@ public class NewEntityUpgradeManager {
       .build());
     registeredUpgrades.add(new EntityUpgrade.Builder()
       .withId("GOLEM_IRON_WILL")
-      .withName(color("&e&l★ &6&lIRON WILL"))
+      .withName(color("&6&lIRON WILL"))
       .withDescription(listFromStrings(
         color("&aIncrease &e&lDAMAGE and ARMOR"),
         color("&aby &e&l3%&a for every one"),
         color("&avillager killed in game"),
         color("&e&lCOST:&a %cost_value% orbs"),
         "",
-        color("&8(★ Special upgrade)"),
         color("&8Click to purchase")
       ))
       .withApplicableEntity(EntityType.IRON_GOLEM)
       .atSlot(34)
       .withCost(300)
-      .isSpecial()
       .build());
     registeredUpgrades.add(new EntityUpgrade.Builder()
       .withId("GOLEM_SURVIVOR")
@@ -191,7 +188,7 @@ public class NewEntityUpgradeManager {
       ))
       .withApplicableEntity(EntityType.IRON_GOLEM)
       .atSlot(48)
-      .isHidden(3)
+      .isHidden(4)
       .build());
     registeredUpgrades.add(new EntityUpgrade.Builder()
       .withId("GOLEM_BANNER_OF_COMMAND")
@@ -207,7 +204,7 @@ public class NewEntityUpgradeManager {
       ))
       .withApplicableEntity(EntityType.IRON_GOLEM)
       .atSlot(49)
-      .isHidden(5)
+      .isHidden(7)
       .build());
     registeredUpgrades.add(new EntityUpgrade.Builder()
       .withId("GOLEM_LAMENT")
@@ -224,7 +221,7 @@ public class NewEntityUpgradeManager {
       ))
       .withApplicableEntity(EntityType.IRON_GOLEM)
       .atSlot(50)
-      .isHidden(7)
+      .isHidden(10)
       .build());
   }
 
@@ -234,7 +231,7 @@ public class NewEntityUpgradeManager {
         .withId("WOLF_HEALTH_AND_REGEN_" + (i + 1))
         .withName(color("&a&lHEALTH AND REGEN " + toRoman(i + 1)))
         .withDescription(listFromStrings(
-          color("&aUpgrade Max Health to &e&l" + (125 * (i + 1)) + " HP"),
+          color("&aUpgrade Max Health to &e&l" + (30 * (i + 1)) + " HP"),
           color("&aand Per Wave Regeneration to &e&l" + (1.5 * (i + 1)) + " HP"),
           color("&e&lCOST:&a %cost_value% orbs"),
           "",
@@ -242,7 +239,7 @@ public class NewEntityUpgradeManager {
         ))
         .withApplicableEntity(EntityType.WOLF)
         .atSlot(10 + i)
-        .putUpgradeData("max_hp", 125 * (i + 1))
+        .putUpgradeData("max_hp", 30 * (i + 1))
         .putUpgradeData("regen", 1.5 * (i + 1))
         .withCost(150 * (i + 1));
       if (i > 0) {
@@ -256,7 +253,7 @@ public class NewEntityUpgradeManager {
         .withName(color("&a&lDAMAGE AND SPEED " + toRoman(i + 1)))
         .withDescription(listFromStrings(
           color("&aIncrease Damage by &e&l" + (2 + (i * 2)) + " DMG"),
-          color("&aand Movement Speed by &e&l" + (0.25 + (i * 0.05)) + " MS"),
+          color("&aand Movement Speed by &e&l" + (0.25 + ((i + 1) * 0.05)) + " MS"),
           color("&e&lCOST:&a %cost_value% orbs"),
           "",
           color("&8Click to purchase")
@@ -264,7 +261,7 @@ public class NewEntityUpgradeManager {
         .withApplicableEntity(EntityType.WOLF)
         .atSlot(14 + i)
         .putUpgradeData("damage", 2 + (i * 2))
-        .putUpgradeData("movement_speed", 0.25 + (i * 0.05))
+        .putUpgradeData("movement_speed", 0.25 + ((i + 1) * 0.05))
         .withCost(150 * (i + 1));
       if (i > 0) {
         builder = builder.andDependsOn("WOLF_DAMAGE_AND_SPEED_" + i);
@@ -325,20 +322,18 @@ public class NewEntityUpgradeManager {
       .build());
     registeredUpgrades.add(new EntityUpgrade.Builder()
       .withId("WOLF_DEEP_WOUNDS")
-      .withName(color("&e&l★ &6&lDEEP WOUNDS"))
+      .withName(color("&6&lDEEP WOUNDS"))
       .withDescription(listFromStrings(
         color("&aReceive &e&l25% CHANCE&a when"),
         color("&aattacking an enemy to apply"),
         color("&e&lBLEEDING&a for three seconds"),
         color("&e&lCOST:&a %cost_value% orbs"),
         "",
-        color("&8(★ Special upgrade)"),
         color("&8Click to purchase")
       ))
       .withApplicableEntity(EntityType.WOLF)
       .atSlot(34)
       .withCost(300)
-      .isSpecial()
       .build());
     registeredUpgrades.add(new EntityUpgrade.Builder()
       .withId("WOLF_ROBBER")
@@ -353,7 +348,7 @@ public class NewEntityUpgradeManager {
       ))
       .withApplicableEntity(EntityType.WOLF)
       .atSlot(48)
-      .isHidden(3)
+      .isHidden(4)
       .build());
     registeredUpgrades.add(new EntityUpgrade.Builder()
       .withId("WOLF_ALPHA")
@@ -369,7 +364,7 @@ public class NewEntityUpgradeManager {
       ))
       .withApplicableEntity(EntityType.WOLF)
       .atSlot(49)
-      .isHidden(5)
+      .isHidden(7)
       .build());
     registeredUpgrades.add(new EntityUpgrade.Builder()
       .withId("WOLF_MORE_THAN_DEATH")
@@ -386,7 +381,7 @@ public class NewEntityUpgradeManager {
       ))
       .withApplicableEntity(EntityType.WOLF)
       .atSlot(50)
-      .isHidden(7)
+      .isHidden(10)
       .build());
   }
 
@@ -421,9 +416,6 @@ public class NewEntityUpgradeManager {
 
     for (EntityUpgrade upgrade : registeredUpgrades) {
       if (!upgrade.getApplicableEntity().equals(livingEntity.getType())) {
-        continue;
-      }
-      if (upgrade.isSpecial() && !(user.getKit() instanceof PetsFriend)) {
         continue;
       }
       gui.setItem(upgrade.getSlot(), upgradeAsItem(livingEntity, upgrade), event -> {
@@ -574,11 +566,7 @@ public class NewEntityUpgradeManager {
         totalLevel++;
       }
     }
-    if (entity instanceof Golem) {
-      entity.setCustomName(new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_GOLEM_NAME").asKey().integer(totalLevel).player(player).build());
-    } else if (entity instanceof Wolf) {
-      entity.setCustomName(new MessageBuilder("IN_GAME_MESSAGES_VILLAGE_WAVE_ENTITIES_WOLF_NAME").asKey().integer(totalLevel).player(player).build());
-    }
+    entity.setCustomName(NewCreatureUtils.getHealthNameTag((Creature) entity));
     User user = plugin.getUserManager().getUser(player);
     ChatColor targetColor = null;
     if (totalLevel >= 13) {
@@ -607,8 +595,8 @@ public class NewEntityUpgradeManager {
       living.setHealth(VersionUtils.getMaxHealth(living));
     } else if (upgrade.getId().contains("DAMAGE_AND_SPEED")) {
       double baseDamage = living.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue();
-      CreatureUtils.getCreatureInitializer().applyDamageModifier((LivingEntity) entity, baseDamage + upgrade.getUpgradeData().get("damage"));
-      CreatureUtils.getCreatureInitializer().applySpeedModifier((LivingEntity) entity, upgrade.getUpgradeData().get("movement_speed"));
+      MiscUtils.getEntityAttribute(living, Attribute.GENERIC_ATTACK_DAMAGE).ifPresent(ai -> ai.setBaseValue(baseDamage + upgrade.getUpgradeData().get("damage")));
+      MiscUtils.getEntityAttribute(living, Attribute.GENERIC_MOVEMENT_SPEED).ifPresent(ai -> ai.setBaseValue(upgrade.getUpgradeData().get("movement_speed")));
     }
   }
 
@@ -642,8 +630,6 @@ public class NewEntityUpgradeManager {
     }
     if (upgrade.isHidden()) {
       targetLocation.getWorld().playSound(targetLocation, Sound.ENTITY_PLAYER_LEVELUP, 1, 0.25f);
-    } else if (upgrade.isSpecial()) {
-      targetLocation.getWorld().playSound(targetLocation, Sound.ENTITY_PLAYER_LEVELUP, 1, 0.5f);
     } else {
       targetLocation.getWorld().playSound(targetLocation, Sound.ENTITY_PLAYER_LEVELUP, 1, 0.5f);
     }

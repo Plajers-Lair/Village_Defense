@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2023  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,18 +20,14 @@ package plugily.projects.villagedefense.arena.managers.maprestorer;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.TreeSpecies;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.material.Door;
 import plugily.projects.minigamesbox.classic.arena.managers.PluginMapRestorerManager;
 import plugily.projects.minigamesbox.classic.utils.version.xseries.XMaterial;
 import plugily.projects.villagedefense.arena.Arena;
-import plugily.projects.villagedefense.creatures.DoorBreakListener;
-import plugily.projects.villagedefense.utils.Utils;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.DoorBreakListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,14 +70,13 @@ public class MapRestorerManager extends PluginMapRestorerManager {
   }
 
   public final void clearEnemiesFromArena() {
-    arena.getEnemySpawnManager().applyIdle(0);
     arena.getEnemies().forEach(org.bukkit.entity.Creature::remove);
     arena.getEnemies().clear();
   }
 
   public final void clearDroppedEntities() {
-    for(Entity entity : arena.getPlugin().getBukkitHelper().getNearbyEntities(arena.getStartLocation(), 200)) {
-      if(entity.getType() == EntityType.EXPERIENCE_ORB || entity.getType() == EntityType.DROPPED_ITEM) {
+    for (Entity entity : arena.getPlugin().getBukkitHelper().getNearbyEntities(arena.getStartLocation(), 200)) {
+      if (entity.getType() == EntityType.EXPERIENCE_ORB || entity.getType() == EntityType.DROPPED_ITEM) {
         entity.remove();
       }
     }
@@ -104,61 +99,52 @@ public class MapRestorerManager extends PluginMapRestorerManager {
 
   public void restoreDoors() {
     int i = 0;
-    for(Location location : doorBlocks) {
+    for (Location location : doorBlocks) {
       Block block = location.getBlock();
       try {
-        if(block.getType() != XMaterial.AIR.parseMaterial()) {
+        if (block.getType() != XMaterial.AIR.parseMaterial()) {
           i++;
           continue;
         }
         Block relative = block.getRelative(BlockFace.DOWN).getLocation().getBlock();
         boolean isAirBelow = relative.getType().equals(XMaterial.AIR.parseMaterial());
         boolean relativeTopHalf = false;
-        if(!isAirBelow) {
+        if (!isAirBelow) {
           relative = block.getRelative(BlockFace.UP).getLocation().getBlock();
           relativeTopHalf = true;
         }
-        restoreDoorPart(block, !relativeTopHalf);
-        restoreDoorPart(relative, relativeTopHalf);
-      } catch(Exception ex) {
+        if (relativeTopHalf) {
+          restoreDoor(relative, block);
+        } else {
+          restoreDoor(block, relative);
+        }
+      } catch (Exception ex) {
         arena.getPlugin().getDebugger().debug(Level.WARNING, "Door has failed to load for arena {0} message {1} type {2} skipping!", arena.getId(), ex.getMessage(), ex.getCause());
       }
     }
-    if(i != doorBlocks.size()) {
+    if (i != doorBlocks.size()) {
       arena.getPlugin().getDebugger().debug(Level.WARNING, "Failed to load doors for {0}! Expected {1} got {2}", arena.getId(), doorBlocks.size(), i);
     }
   }
 
-  public void restoreDoorPart(Block block, boolean topHalf) {
-    byte doorByte;
-    if(topHalf) {
-      doorByte = 8;
-    } else {
-      doorByte = 1;
-    }
+  public void restoreDoor(Block top, Block bottom) {
+    top.setType(Material.OAK_DOOR, false);
+    bottom.setType(Material.OAK_DOOR, false);
 
-    block.setType(Utils.getCachedDoor(block));
-    Door doorData = null;
-    try {
-      doorData = new Door(TreeSpecies.GENERIC, arena.getPlugin().getBukkitHelper().getFacingByByte(doorByte));
-    } catch(NoSuchMethodError e) {
-      try {
-        doorData = Door.class.getDeclaredConstructor(Material.class, byte.class).newInstance(XMaterial.OAK_DOOR.parseMaterial(), doorByte);
-      } catch(Exception ex) {
-        ex.printStackTrace();
-      }
-    }
-    if(doorData == null) {
-      return;
-    }
-    BlockState state = block.getState();
-    doorData.setTopHalf(topHalf);
-    doorData.setFacingDirection(doorData.getFacing());
-    state.setType(doorData.getItemType());
-    state.setData(doorData);
-    state.update(true);
+    org.bukkit.block.data.type.Door d2 = (org.bukkit.block.data.type.Door) top.getBlockData();
+    org.bukkit.block.data.type.Door d1 = (org.bukkit.block.data.type.Door) bottom.getBlockData();
 
-    block.removeMetadata(DoorBreakListener.CREATURE_DOOR_BULLDOZER_METADATA, arena.getPlugin());
+    d2.setHalf(org.bukkit.block.data.Bisected.Half.TOP);
+    d1.setHalf(org.bukkit.block.data.Bisected.Half.BOTTOM);
+
+    d2.setFacing(top.getRelative(BlockFace.WEST).getType() == Material.AIR ? BlockFace.EAST : BlockFace.NORTH);
+    d1.setFacing(top.getRelative(BlockFace.WEST).getType() == Material.AIR ? BlockFace.EAST : BlockFace.NORTH);
+
+    top.setBlockData(d2);
+    bottom.setBlockData(d1);
+
+    top.removeMetadata(DoorBreakListener.CREATURE_DOOR_BULLDOZER_METADATA, arena.getPlugin());
+    bottom.removeMetadata(DoorBreakListener.CREATURE_DOOR_BULLDOZER_METADATA, arena.getPlugin());
   }
 
 }

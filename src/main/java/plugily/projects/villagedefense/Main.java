@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,14 +36,16 @@ import plugily.projects.villagedefense.arena.ArenaEvents;
 import plugily.projects.villagedefense.arena.ArenaManager;
 import plugily.projects.villagedefense.arena.ArenaRegistry;
 import plugily.projects.villagedefense.arena.ArenaUtils;
-import plugily.projects.villagedefense.arena.managers.enemy.spawner.EnemySpawnerRegistry;
+import plugily.projects.villagedefense.arena.managers.shop.ArenaShopRegistry;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.DoorBreakListener;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewCreatureUtils;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.enemy.EnemiesRegistry;
 import plugily.projects.villagedefense.arena.powerup.PowerupEvents;
 import plugily.projects.villagedefense.boot.AdditionalValueInitializer;
 import plugily.projects.villagedefense.boot.MessageInitializer;
 import plugily.projects.villagedefense.boot.PlaceholderInitializer;
 import plugily.projects.villagedefense.commands.arguments.ArgumentsRegistry;
-import plugily.projects.villagedefense.creatures.CreatureUtils;
-import plugily.projects.villagedefense.creatures.DoorBreakListener;
+import plugily.projects.villagedefense.events.ChatEvents;
 import plugily.projects.villagedefense.events.EntityUpgradeListener;
 import plugily.projects.villagedefense.events.PluginEvents;
 import plugily.projects.villagedefense.handlers.hologram.NewHologramManager;
@@ -53,13 +55,14 @@ import plugily.projects.villagedefense.handlers.upgrade.NewEntityUpgradeManager;
 import plugily.projects.villagedefense.kits.BuilderKit;
 import plugily.projects.villagedefense.kits.CleanerKit;
 import plugily.projects.villagedefense.kits.CrusaderKit;
+import plugily.projects.villagedefense.kits.KitsMenu;
 import plugily.projects.villagedefense.kits.KnightKit;
 import plugily.projects.villagedefense.kits.MedicKit;
-import plugily.projects.villagedefense.kits.PetsFriend;
 import plugily.projects.villagedefense.kits.ShotBowKit;
-import plugily.projects.villagedefense.kits.TerminatorKit;
 import plugily.projects.villagedefense.kits.TornadoKit;
 import plugily.projects.villagedefense.kits.WizardKit;
+import plugily.projects.villagedefense.kits.petsfriend.PetsFriendKit;
+import plugily.projects.villagedefense.kits.terminator.TerminatorKit;
 import plugily.projects.villagedefense.kits.utils.KitHelper;
 import plugily.projects.villagedefense.user.VDUserManager;
 import plugily.projects.villagedefense.utils.ProtocolUtils;
@@ -74,11 +77,13 @@ import java.util.logging.Level;
 public class Main extends PluginMain {
 
   private @Getter FileConfiguration entityUpgradesConfig;
-  private @Getter EnemySpawnerRegistry enemySpawnerRegistry;
+  private @Getter EnemiesRegistry newEnemiesRegistry;
   private @Getter NewEntityUpgradeManager entityUpgradeManager;
   private @Getter NewHologramManager newHologramManager;
   private @Getter VDUserManager vdUserManager;
   private @Getter GlowingEntities glowingEntities;
+  private @Getter KitsMenu kitsMenu;
+  private @Getter ArenaShopRegistry arenaShopRegistry;
 
   private ArgumentsRegistry argumentsRegistry;
   private ArenaRegistry arenaRegistry;
@@ -127,14 +132,16 @@ public class Main extends PluginMain {
   }
 
   public void initializePluginClasses() {
-    addFileName("powerups");
-    addFileName("creatures");
     Arena.init(this);
     ArenaUtils.init(this);
+    arenaShopRegistry = new ArenaShopRegistry();
+    arenaShopRegistry.registerItems();
     KitHelper.init(this);
     ProtocolUtils.init(this);
     new ArenaEvents(this);
     new PowerupEvents(this);
+    new ChatEvents(this);
+    newEnemiesRegistry = new EnemiesRegistry(this);
     vdUserManager = new VDUserManager(this);
     arenaManager = new ArenaManager(this);
     arenaRegistry = new ArenaRegistry(this);
@@ -142,12 +149,12 @@ public class Main extends PluginMain {
     getSignManager().loadSigns();
     getSignManager().updateSigns();
     argumentsRegistry = new ArgumentsRegistry(this);
-    enemySpawnerRegistry = new EnemySpawnerRegistry(this);
     entityUpgradesConfig = ConfigUtils.getConfig(this, "entity_upgrades");
     entityUpgradeManager = new NewEntityUpgradeManager(this);
     newHologramManager = new NewHologramManager(this);
+    kitsMenu = new KitsMenu(this);
     new DoorBreakListener(this);
-    CreatureUtils.init(this);
+    NewCreatureUtils.init(this);
     new PluginEvents(this);
     new EntityUpgradeListener(this);
     new EntityUpgradeHandlerEvents(this);
@@ -160,7 +167,7 @@ public class Main extends PluginMain {
     getDebugger().debug("Adding kits...");
     addFileName("kits");
     Class<?>[] classKitNames = new Class[]{KnightKit.class, BuilderKit.class, TornadoKit.class, ShotBowKit.class, MedicKit.class,
-      CleanerKit.class, PetsFriend.class, TerminatorKit.class, CrusaderKit.class, WizardKit.class};
+      CleanerKit.class, PetsFriendKit.class, TerminatorKit.class, CrusaderKit.class, WizardKit.class};
     for (Class<?> kitClass : classKitNames) {
       try {
         kitClass.getDeclaredConstructor().newInstance();

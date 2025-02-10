@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 package plugily.projects.villagedefense.user;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
@@ -55,6 +56,12 @@ public class VDUserManager implements Listener {
   @EventHandler
   public void onJoin(PlayerJoinEvent event) {
     users.add(load(event.getPlayer()));
+    event.getPlayer().setResourcePack(
+      "https://static.plajer.xyz/villagedefense/lookandfeelv1_1.zip",
+      "f221d030f380026ffef1202c7a2f538c",
+      true,
+      Component.text("We kindly ask to download required Village Defense resource pack for better game experience.")
+    );
   }
 
   @EventHandler

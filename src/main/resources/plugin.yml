@@ -2,7 +2,8 @@ name: ${description}
 main: plugily.projects.villagedefense.Main
 authors: [ PlugilyProjects, Tigerpanzer_02, TomTheDeveloper, Plajer, montlikadani ]
 version: ${version}
-softdepend: [ PlaceholderAPI, Parties, Spigot-Party-API-PAF, PartyAndFriends, ViaVersion, ProtocolSupport, ProtocolLib ]
+depend: [ Citizens, ProtocolLib ]
+softdepend: [ PlaceholderAPI, Parties, Spigot-Party-API-PAF, PartyAndFriends, ViaVersion, ProtocolSupport ]
 api-version: 1.13
 
 commands:

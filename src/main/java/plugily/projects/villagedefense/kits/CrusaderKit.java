@@ -1,6 +1,6 @@
 /*
  * Village Defense - Protect villagers from hordes of zombies
- * Copyright (c) 2024  Plugily Projects - maintained by Tigerpanzer_02 and contributors
+ * Copyright (c) 2025  Plugily Projects - maintained by Tigerpanzer_02 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.WorldBorder;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -36,6 +35,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -56,16 +56,17 @@ import plugily.projects.minigamesbox.classic.utils.version.xseries.ParticleDispl
 import plugily.projects.minigamesbox.classic.utils.version.xseries.XMaterial;
 import plugily.projects.minigamesbox.classic.utils.version.xseries.XParticle;
 import plugily.projects.minigamesbox.classic.utils.version.xseries.XSound;
+import plugily.projects.villagedefense.Main;
 import plugily.projects.villagedefense.arena.Arena;
-import plugily.projects.villagedefense.creatures.CreatureUtils;
+import plugily.projects.villagedefense.arena.managers.spawner.gold.NewCreatureUtils;
 import plugily.projects.villagedefense.kits.ability.AbilitySource;
 import plugily.projects.villagedefense.kits.utils.ActionBarPriority;
 import plugily.projects.villagedefense.kits.utils.KitHelper;
 import plugily.projects.villagedefense.kits.utils.KitSpecifications;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -73,12 +74,11 @@ import java.util.concurrent.ThreadLocalRandom;
  * <p>
  * Created at 30.08.2023
  */
-public class CrusaderKit extends PremiumKit implements AbilitySource, Listener {
+public class CrusaderKit extends PremiumKit implements AbilitySource, Listener, ChatDisplayable, ScoreboardModifiable {
 
   private static final String COURAGE_METADATA = "VD_CRUSADER_COURAGE";
   private static final String UNKILLABLE_METADATA = "VD_CRUSADER_UNKILLABLE";
   private static final String LANGUAGE_ACCESSOR = "KIT_CONTENT_CRUSADER_";
-  private List<UUID> kitPlayers = new ArrayList<>();
 
   public CrusaderKit() {
     registerMessages();
@@ -88,6 +88,13 @@ public class CrusaderKit extends PremiumKit implements AbilitySource, Listener {
     setDescription(description);
     getPlugin().getServer().getPluginManager().registerEvents(this, getPlugin());
     getPlugin().getKitRegistry().registerKit(this);
+    ((Main) getPlugin()).getKitsMenu().registerKit(KitsMenu.KitCategory.TANK, this);
+  }
+
+  @Override
+  @SuppressWarnings("UnnecessaryUnicodeEscape")
+  public String getChatPrefix() {
+    return "\u0043";
   }
 
   private void registerMessages() {
@@ -112,12 +119,35 @@ public class CrusaderKit extends PremiumKit implements AbilitySource, Listener {
   }
 
   @Override
+  public List<String> getScoreboardLines(User user) {
+    Arena arena = (Arena) user.getArena();
+    int wave = arena.getWave();
+    List<String> lines = new ArrayList<>(
+      Arrays.asList(
+        "",
+        "&fVillagers: &a" + arena.getVillagers().size(),
+        "&fZombies: &a" + arena.getEnemies().size(),
+        "&fOrbs: &a" + user.getStatistic("orbs"),
+        "",
+        "&e&lABILITIES:",
+        ScoreboardModifiable.renderAbilityCooldown(user, "crusader_courageous", "Courageous", wave, KitSpecifications.GameTimeState.EARLY),
+        ScoreboardModifiable.renderAbilityCooldown(user, "crusader_glorytotheking", "Glory to the King", wave, KitSpecifications.GameTimeState.MID),
+        ""
+      )
+    );
+    if (!arena.isFighting()) {
+      lines.add(1, "&fNext Wave in &a" + arena.getTimer() + "s");
+    }
+    return lines;
+  }
+
+  @Override
   public void giveKitItems(Player player) {
-    ArmorHelper.setArmor(player, ArmorHelper.ArmorType.IRON);
-    ItemStack itemStack = XMaterial.IRON_SWORD.parseItem();
-    itemStack.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 3);
-    itemStack.addUnsafeEnchantment(Enchantment.DAMAGE_UNDEAD, 2);
-    itemStack.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
+    ArmorHelper.setArmor(player, ArmorHelper.ArmorType.LEATHER);
+    ItemStack itemStack = XMaterial.STONE_SWORD.parseItem();
+    ItemMeta meta = itemStack.getItemMeta();
+    meta.setUnbreakable(true);
+    itemStack.setItemMeta(meta);
     player.getInventory().addItem(itemStack);
 
     player.getInventory().setItem(3, new ItemBuilder(new ItemStack(XMaterial.GOAT_HORN.parseMaterial()))
@@ -165,7 +195,7 @@ public class CrusaderKit extends PremiumKit implements AbilitySource, Listener {
           stacks = user.getPlayer().getMetadata(COURAGE_METADATA).get(0).asInt();
         }
         MessageBuilder message;
-        if (stacks >= 50) {
+        if (stacks >= 75) {
           message = new MessageBuilder(LANGUAGE_ACCESSOR + "GAME_ITEM_COURAGEOUS_STACKS_MAX").asKey();
         } else {
           message = new MessageBuilder(LANGUAGE_ACCESSOR + "GAME_ITEM_COURAGEOUS_STACKS").asKey().integer(stacks);
@@ -177,6 +207,17 @@ public class CrusaderKit extends PremiumKit implements AbilitySource, Listener {
         }
       }
     }.runTaskTimer(getPlugin(), 0, 5);
+  }
+
+  @EventHandler
+  public void onStunAura(EntityDamageByEntityEvent event) {
+    if (!(event.getDamager() instanceof Player player) || !NewCreatureUtils.isEnemy(event.getEntity())) {
+      return;
+    }
+    User user = getPlugin().getUserManager().getUser(player);
+    if (player.hasMetadata("VD_CRUSADER_STUN_AURA")) {
+      NewCreatureUtils.doStunEnemy((Creature) event.getEntity(), (int) Settings.PASSIVE_STUN_DURATION.getForArenaState((Arena) user.getArena()));
+    }
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -219,7 +260,7 @@ public class CrusaderKit extends PremiumKit implements AbilitySource, Listener {
 
   @EventHandler
   public void onIronWillCast(EntityDamageByEntityEvent event) {
-    if (!(event.getDamager() instanceof Player) || !CreatureUtils.isEnemy(event.getEntity())) {
+    if (!(event.getDamager() instanceof Player) || !NewCreatureUtils.isEnemy(event.getEntity())) {
       return;
     }
     Player damager = (Player) event.getDamager();
@@ -237,7 +278,7 @@ public class CrusaderKit extends PremiumKit implements AbilitySource, Listener {
       if (totalHits == 3) {
         damager.playSound(damager, Sound.BLOCK_ANVIL_PLACE, 0.2f, 1.5f);
         Creature enemy = ((Creature) event.getEntity());
-        CreatureUtils.doStunEnemy(enemy, (int) Settings.PASSIVE_STUN_DURATION.getForArenaState((Arena) user.getArena()));
+        NewCreatureUtils.doStunEnemy(enemy, (int) Settings.PASSIVE_STUN_DURATION.getForArenaState((Arena) user.getArena()));
         damager.removeMetadata(metadata, getPlugin());
         doIncreaseCourage(damager, (int) Settings.PASSIVE_STACKS_AMOUNT.getForArenaState((Arena) user.getArena()));
         return;
@@ -252,7 +293,7 @@ public class CrusaderKit extends PremiumKit implements AbilitySource, Listener {
     if (player.hasMetadata(COURAGE_METADATA)) {
       int stacks = player.getMetadata(COURAGE_METADATA).get(0).asInt();
       stacks += amount;
-      stacks = Math.min(stacks, 50);
+      stacks = Math.min(stacks, 75);
       player.setMetadata(COURAGE_METADATA, new FixedMetadataValue(getPlugin(), stacks));
     } else {
       player.setMetadata(COURAGE_METADATA, new FixedMetadataValue(getPlugin(), amount));
@@ -292,18 +333,24 @@ public class CrusaderKit extends PremiumKit implements AbilitySource, Listener {
       stacks = player.getMetadata(COURAGE_METADATA).get(0).asInt();
     }
     player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 20 * 5, 1));
-    if (stacks >= 5) {
+    if (stacks >= 10) {
       player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 5, 1));
     }
-    if (stacks >= 35) {
-      KitHelper.healPlayer(player, VersionUtils.getMaxHealth(player) * 0.6);
-    } else if (stacks >= 25) {
-      KitHelper.healPlayer(player, VersionUtils.getMaxHealth(player) * 0.3);
-    } else if (stacks >= 15) {
-      KitHelper.healPlayer(player, VersionUtils.getMaxHealth(player) * 0.15);
+    if (stacks >= 30) {
+      KitHelper.healPlayer(player, VersionUtils.getMaxHealth(player) * 0.5);
+    } else if (stacks >= 20) {
+      KitHelper.healPlayer(player, VersionUtils.getMaxHealth(player) * 0.25);
+    }
+    if (stacks >= 40) {
+      player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20 * 8, 0));
     }
     if (stacks >= 50) {
       doPrepareBurnAura(user);
+    }
+    //todo stun aura as well as burn aura action bar
+    if (stacks >= 75) {
+      player.setMetadata("VD_CRUSADER_STUN_AURA", new FixedMetadataValue(getPlugin(), true));
+      Bukkit.getScheduler().runTaskLater(getPlugin(), () -> player.removeMetadata("VD_CRUSADER_STUN_AURA", getPlugin()), 20 * 8);
     }
     playRandomHorn(player);
     player.removeMetadata(COURAGE_METADATA, getPlugin());
@@ -336,7 +383,7 @@ public class CrusaderKit extends PremiumKit implements AbilitySource, Listener {
         XParticle.circle(3.5, 28, ParticleDisplay.simple(player.getLocation().add(0, 0.5, 0), XParticle.getParticle("SMOKE_NORMAL")));
         if (tick % 20 == 0) {
           for (Entity entity : player.getNearbyEntities(3.5, 3.5, 3.5)) {
-            if (!CreatureUtils.isEnemy(entity) || entity.equals(player)) {
+            if (!NewCreatureUtils.isEnemy(entity) || entity.equals(player)) {
               continue;
             }
             entity.setFireTicks(25);
@@ -452,7 +499,7 @@ public class CrusaderKit extends PremiumKit implements AbilitySource, Listener {
   }
 
   private enum Settings {
-    PASSIVE_STUN_DURATION(2, 4, 5), PASSIVE_STACKS_AMOUNT(1, 2, 4), ULTIMATE_HEAL_POWER(0, 4, 5);
+    PASSIVE_STUN_DURATION(2, 3, 4), PASSIVE_STACKS_AMOUNT(1, 2, 3), ULTIMATE_HEAL_POWER(0, 4, 5);
 
     private final double earlyValue;
     private final double midValue;
